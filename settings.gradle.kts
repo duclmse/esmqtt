@@ -1,2 +1,2 @@
-rootProject.name = "emqtt"
+rootProject.name = "esmqtt"
 

@@ -1,0 +1,24 @@
+{
+  "properties": [
+    {
+      "name": "iot.mqtt.qos",
+      "type": "java.lang.String",
+      "description": "Description for iot.mqtt.qos."
+    },
+    {
+      "name": "iot.mqtt.client-id",
+      "type": "java.lang.String",
+      "description": "Description for iot.mqtt.client-id."
+    },
+    {
+      "name": "iot.mqtt.auto-reconnect",
+      "type": "java.lang.String",
+      "description": "Description for iot.mqtt.auto-reconnect."
+    },
+    {
+      "name": "iot.storage.location",
+      "type": "java.lang.String",
+      "description": "Description for iot.storage.location."
+    }
+  ]
+}

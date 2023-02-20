@@ -7,6 +7,7 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(fluent = true)
 public class Header {
+
     @JsonProperty
     private String name;
 

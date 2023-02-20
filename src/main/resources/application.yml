@@ -4,7 +4,7 @@ spring:
   webflux:
     base-path: /
   datasource:
-    driverClassName: com.mysql.jdbc.Driver
+    driverClassName: com.mysql.cj.jdbc.Driver
   r2dbc:
     pool:
       initial-size: 100
@@ -15,12 +15,26 @@ spring:
 server:
   port: 8080
 
+---
+spring:
+  profile: prod
+
+---
+spring:
+  profile: dev
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/test?useSSL=false
+    username: root
+    password: 1
 iot:
   mqtt:
-    url: tcp://127.0.0.1
-    post
+    url: tcp://broker.hivemq.com:1883
+    username: test
+    password: 1
     qos: 1
-    client-id: vtag-backend
+    auto-reconnect: true
+    topic: device/test/topic
+    client-id: iot-backend
     timeout: 5000
   storage:
     location: ~/storage/

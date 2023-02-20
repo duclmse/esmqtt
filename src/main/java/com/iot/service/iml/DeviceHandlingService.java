@@ -1,3 +1,5 @@
 package com.iot.service.iml;
 
-public interface DeviceHandlingService {}
+public interface DeviceHandlingService {
+    void sendControlMsg();
+}
