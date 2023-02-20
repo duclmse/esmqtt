@@ -1,0 +1,26 @@
+spring:
+  main:
+    web-application-type: reactive
+  webflux:
+    base-path: /
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+  r2dbc:
+    pool:
+      initial-size: 100
+      max-size: 500
+      max-idle-time: 30m
+      validation-query: SELECT 1
+
+server:
+  port: 8080
+
+iot:
+  mqtt:
+    url: tcp://127.0.0.1
+    post
+    qos: 1
+    client-id: vtag-backend
+    timeout: 5000
+  storage:
+    location: ~/storage/
