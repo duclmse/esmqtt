@@ -20,13 +20,13 @@ public class AuthenticationConverterConfig implements ServerAuthenticationConver
     @Override
     public Mono<Authentication> convert(ServerWebExchange exchange) {
         return Mono.justOrEmpty(exchange)
-                .flatMap(this::extract)
-                .filter(authValue -> authValue.length() > BEARER.length())
-                .map(authValue -> {
-                    log.info("AuthenticationConverterConfig convert");
-                    return authValue.substring(BEARER.length());
-                })
-                .flatMap(s -> Mono.empty());
+            .flatMap(this::extract)
+            .filter(authValue -> authValue.length() > BEARER.length())
+            .map(authValue -> {
+                log.info("AuthenticationConverterConfig convert");
+                return authValue.substring(BEARER.length());
+            })
+            .flatMap(s -> Mono.empty());
         // .flatMap(this::verifyToken)
         // .flatMap(this::buildUserDetails)
         // .flatMap(this::create);
@@ -57,6 +57,6 @@ public class AuthenticationConverterConfig implements ServerAuthenticationConver
 
     private Mono<Authentication> create(UserDetails userDetails) {
         return Mono.justOrEmpty(
-                new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities()));
+            new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities()));
     }
 }

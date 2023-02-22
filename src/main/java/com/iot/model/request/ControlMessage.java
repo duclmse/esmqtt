@@ -5,4 +5,5 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(fluent = true)
-public class ControlMessage {}
+public class ControlMessage {
+}

@@ -35,12 +35,12 @@ public class WebSecurityConfig {
     public SecurityWebFilterChain configure(ServerHttpSecurity http) {
         //@formatter:off
         return http.authorizeExchange().anyExchange().permitAll()
-                // .authorizeExchange().pathMatchers("/", "/login", "/user/token").permitAll()
-                // .and().authorizeExchange().pathMatchers("/device").hasAnyRole("ROLE_USER", "ROLE_ADMIN")
-                // .and().authorizeExchange().pathMatchers("/admin").hasRole("ROLE_ADMIN")
-                // .and().logout().logoutUrl("/logout")
-                .and().addFilterAt(deviceAuthenticationFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
-                .csrf().disable().build();
+            // .authorizeExchange().pathMatchers("/", "/login", "/user/token").permitAll()
+            // .and().authorizeExchange().pathMatchers("/device").hasAnyRole("ROLE_USER", "ROLE_ADMIN")
+            // .and().authorizeExchange().pathMatchers("/admin").hasRole("ROLE_ADMIN")
+            // .and().logout().logoutUrl("/logout")
+            .and().addFilterAt(deviceAuthenticationFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
+            .csrf().disable().build();
         //@formatter:on
     }
 
@@ -67,6 +67,6 @@ public class WebSecurityConfig {
     public HttpClient httpClient() throws SSLException {
         var sslContext = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
         return HttpClient.create().secure(t -> t.sslContext(sslContext))
-                .responseTimeout(Duration.of(100, ChronoUnit.SECONDS));
+            .responseTimeout(Duration.of(100, ChronoUnit.SECONDS));
     }
 }

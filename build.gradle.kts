@@ -1,5 +1,3 @@
-
-
 group = "com.iot"
 version = "1.0-SNAPSHOT"
 
@@ -15,7 +13,12 @@ repositories {
     maven { url = uri("https://maven.google.com/") }
 }
 
-val versions = mapOf("boot" to "3.0.0")
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+val versions = mapOf("boot" to "3.0.0", "integration" to "6.0.2")
 
 fun spring(project: String, module: String = ""): String {
     return "org.springframework.$project:spring-$project$module:${versions[project]}"
@@ -35,7 +38,9 @@ dependencies {
     implementation(spring("boot", "-starter-jdbc"))
     implementation(spring("boot", "-starter-webflux"))
     implementation(spring("boot", "-starter-security"))
-    implementation("org.springframework.integration:spring-integration-mqtt:6.0.2")
+    implementation(spring("boot", "-starter-actuator"))
+    implementation(spring("boot", "-starter-validation"))
+    implementation(spring("integration", "-mqtt"))
 
     implementation("com.mysql:mysql-connector-j:8.0.32")
 

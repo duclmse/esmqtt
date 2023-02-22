@@ -23,11 +23,24 @@ public class ObjectResponse {
     @JsonProperty
     private Object data;
 
+    @JsonProperty
+    private Object error;
+
+    public ObjectResponse(int code, String message, Object data) {
+        this.code = code;
+        this.message = message;
+        this.data = data;
+    }
+
     public static ObjectResponse of(int code, String message) {
         return new ObjectResponse(code, message);
     }
 
     public static ObjectResponse of(int code, String message, Object data) {
         return new ObjectResponse(code, message, data);
+    }
+
+    public static ObjectResponse error(int code, String message, Object error) {
+        return new ObjectResponse(code, message, null, error);
     }
 }

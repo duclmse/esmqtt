@@ -10,7 +10,7 @@ public interface DeviceRepository {
 
     DeviceInfo readDevice(String id);
 
-    List<DeviceInfo> readDevices(String id);
+    List<DeviceInfo> readAllDevices(int limit, int offset);
 
     int updateDevice(String id, DeviceInfo info);
 

@@ -1,6 +1,6 @@
 package com.iot.repository.iml;
 
-import com.iot.model.msg.DeviceMessage;
+import com.iot.model.msg.DeviceMessageHistory;
 import com.iot.model.request.MessageHistoryRequest;
 import com.iot.repository.interfaces.DeviceMessageRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +9,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,11 +25,11 @@ public class DeviceMessageRepositoryImpl implements DeviceMessageRepository {
     @Override
     public int saveMessage(String id, Instant ts, String msg) {
         var sql = "INSERT INTO device_message_history(device_id, ts, message) VALUES (?, ?, ?);";
-        return jdbc.update(sql, id, ts.toEpochMilli(), msg);
+        return jdbc.update(sql, id, Timestamp.from(ts), msg);
     }
 
     @Override
-    public List<DeviceMessage> getMessages(MessageHistoryRequest request) {
+    public List<DeviceMessageHistory> getMessages(MessageHistoryRequest request) {
         var sql = new StringBuilder("SELECT device_id, ts, message FROM device_message_history ");
         var params = new ArrayList<>();
         var previous = false;
@@ -52,8 +54,10 @@ public class DeviceMessageRepositoryImpl implements DeviceMessageRepository {
         return jdbc.query(sql.toString(), this::map, params.toArray());
     }
 
-    private DeviceMessage map(ResultSet rs, int i) {
-        log.info("implement me ");
-        return new DeviceMessage();
+    private DeviceMessageHistory map(ResultSet rs, int i) throws SQLException {
+        return new DeviceMessageHistory()
+            .id(rs.getString("device_id"))
+            .ts(rs.getTimestamp("ts").toInstant())
+            .msg(rs.getString("msg"));
     }
 }

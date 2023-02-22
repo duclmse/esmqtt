@@ -1,3 +1,9 @@
 package com.iot.model.response;
 
-public class ControlResponse {}
+import lombok.Data;
+import lombok.experimental.Accessors;
+
+@Data
+@Accessors(fluent = true)
+public class ControlResponse {
+}

@@ -23,7 +23,7 @@ public class TestMqtt {
 
     @Test
     public void testMqttConnection() {
-        try (var client = new MqttClient("tcp://broker.hivemq.com:1883", "fghfghf")) {
+        try (var client = new MqttClient("tcp://localhost:1883", "fghfghf")) {
             client.connect(mqttConnectOptions());
             MqttMessage msg = new MqttMessage();
             msg.setPayload("payload".getBytes());

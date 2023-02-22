@@ -9,6 +9,7 @@ import java.time.Instant;
 @Data
 @Accessors(fluent = true)
 public class CommandHistoryRequest {
+
     @JsonProperty("device_id")
     private String deviceId;
 
@@ -17,9 +18,6 @@ public class CommandHistoryRequest {
 
     @JsonProperty("to")
     private Instant to;
-
-//    @JsonProperty("message")
-//    private String message;
 
     @JsonProperty("limit")
     private Integer limit;

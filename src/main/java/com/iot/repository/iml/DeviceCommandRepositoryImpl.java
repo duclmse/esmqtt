@@ -1,20 +1,23 @@
 package com.iot.repository.iml;
 
-import com.iot.model.CommandInfo;
+import com.iot.model.msg.DeviceCommandHistory;
 import com.iot.model.request.CommandHistoryRequest;
-import com.iot.repository.interfaces.DeviceControlRepository;
+import com.iot.repository.interfaces.DeviceCommandRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class DeviceControlRepositoryImpl implements DeviceControlRepository {
+public class DeviceCommandRepositoryImpl implements DeviceCommandRepository {
 
     private final JdbcTemplate jdbc;
 
@@ -25,7 +28,7 @@ public class DeviceControlRepositoryImpl implements DeviceControlRepository {
     }
 
     @Override
-    public List<CommandInfo> getCommandHistory(CommandHistoryRequest request) {
+    public List<DeviceCommandHistory> getCommandHistory(CommandHistoryRequest request) {
         var sql = new StringBuilder("SELECT device_id, ts, message FROM device_command_history ");
         var params = new ArrayList<>();
         var previous = false;
@@ -46,12 +49,15 @@ public class DeviceControlRepositoryImpl implements DeviceControlRepository {
         sql.append("LIMIT ? OFFSET ?");
         params.add(request.limit() != null ? request.limit() : 100);
         params.add(request.offset() != null ? request.offset() : 0);
-
+        log.debug("sql {}", sql);
         return jdbc.query(sql.toString(), this::map, params.toArray());
     }
 
-    private CommandInfo map(ResultSet rs, int i) {
-        return null;
+    private DeviceCommandHistory map(ResultSet rs, int i) throws SQLException {
+        return new DeviceCommandHistory()
+            .id(rs.getString("device_id"))
+            .ts(rs.getTimestamp("ts").toInstant())
+            .msg(rs.getString("msg"));
     }
 
 }

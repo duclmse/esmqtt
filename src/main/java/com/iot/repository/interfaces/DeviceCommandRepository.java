@@ -1,14 +1,14 @@
 package com.iot.repository.interfaces;
 
-import com.iot.model.CommandInfo;
+import com.iot.model.msg.DeviceCommandHistory;
 import com.iot.model.request.CommandHistoryRequest;
 
 import java.time.Instant;
 import java.util.List;
 
-public interface DeviceControlRepository {
+public interface DeviceCommandRepository {
 
     int saveCommand(String id, Instant ts, String command);
 
-    List<CommandInfo> getCommandHistory(CommandHistoryRequest request);
+    List<DeviceCommandHistory> getCommandHistory(CommandHistoryRequest request);
 }

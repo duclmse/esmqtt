@@ -1,6 +1,8 @@
 package com.iot.model.msg;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -8,7 +10,9 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 public class DeviceInfo {
 
+    @JsonAlias({"id"})
     @JsonProperty("dev_id")
+    @NotBlank(message = "ID is mandatory")
     private String id;
 
     @JsonProperty("name")
