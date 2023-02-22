@@ -6,16 +6,19 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(fluent = true)
-public class Header {
+public class DeviceInfo {
 
-    @JsonProperty
+    @JsonProperty("dev_id")
+    private String id;
+
+    @JsonProperty("name")
     private String name;
 
-    @JsonProperty
+    @JsonProperty("ip")
     private String ip;
 
-    @JsonProperty
-    private String ver;
+    @JsonProperty("ver")
+    private String version;
 
     @JsonProperty("hub_id")
     private String hubId;
@@ -24,11 +27,9 @@ public class Header {
     private String productId;
 
     @JsonProperty("dev_type")
-    private String devType;
+    private String deviceType;
 
     @JsonProperty("home_id")
     private String homeId;
 
-    @JsonProperty("dev_id")
-    private String devId;
 }

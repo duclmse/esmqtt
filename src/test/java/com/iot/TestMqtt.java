@@ -1,14 +1,16 @@
 package com.iot;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.iot.model.msg.DeviceMessage;
-import com.iot.model.msg.Header;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -74,5 +76,26 @@ public class TestMqtt {
         var o = mapper.readValue(payload, new TypeReference<Map<String,Object>>(){});
         log.info("{}", o);
         log.info("{}", mapper.writeValueAsString(o));
+    }
+
+    @Test
+    public final void givenTypeHasFilterThatIgnoresFieldByName_whenDtoIsSerialized_thenCorrect() throws IOException {
+
+        var mapper = new ObjectMapper();
+        var theFilter = SimpleBeanPropertyFilter.serializeAllExcept("intValue");
+        var filters = new SimpleFilterProvider().addFilter("myFilter", theFilter);
+
+        MyDtoWithFilter dtoObject = new MyDtoWithFilter();
+        String dtoAsString = mapper.writer(filters).writeValueAsString(dtoObject);
+
+        Assertions.assertFalse(dtoAsString.contains("intValue"));
+        Assertions.assertTrue(dtoAsString.contains("booleanValue"));
+        Assertions.assertTrue(dtoAsString.contains("stringValue"));
+        System.out.println(dtoAsString);
+    }
+
+    @JsonFilter("myFilter")
+    public static class MyDtoWithFilter {
+
     }
 }

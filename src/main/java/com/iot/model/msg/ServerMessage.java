@@ -7,6 +7,6 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(fluent = true)
 @EqualsAndHashCode(callSuper = true)
-public class ServerMessage extends Header {
+public class ServerMessage extends DeviceInfo {
 
 }

@@ -1,12 +1,10 @@
 package com.iot.config;
 
-import org.eclipse.paho.client.mqttv3.*;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.core.MessageProducer;
@@ -34,9 +32,14 @@ public class MqttConfig {
     @Value("${iot.mqtt.password}")
     private String password;
 
+    @Value("${iot.mqtt.qos}")
+    private int qos;
 
-    @Value("${iot.mqtt.topic}")
-    private String topic;
+    @Value("${iot.mqtt.up-topic}")
+    private String upTopic;
+
+    @Value("${iot.mqtt.dn-topic}")
+    private String dnTopic;
 
     @Value("${iot.mqtt.timeout}")
     private int timeout;
@@ -70,11 +73,11 @@ public class MqttConfig {
 
     @Bean
     public MessageProducer inbound() {
-        var adapter = new MqttPahoMessageDrivenChannelAdapter(url, clientId, topic);
-        adapter.setCompletionTimeout(5000);
+        var adapter = new MqttPahoMessageDrivenChannelAdapter(this.url, this.clientId, this.upTopic);
         adapter.setConverter(new DefaultPahoMessageConverter());
-        adapter.setQos(1);
         adapter.setOutputChannel(mqttInputChannel());
+        adapter.setCompletionTimeout(this.timeout);
+        adapter.setQos(this.qos);
         return adapter;
     }
 
@@ -94,16 +97,14 @@ public class MqttConfig {
     @Bean
     @ServiceActivator(inputChannel = "mqttOutboundChannel")
     public MessageHandler mqttOutbound() {
-        MqttPahoMessageHandler messageHandler = new MqttPahoMessageHandler(clientId, mqttClientFactory());
+        MqttPahoMessageHandler messageHandler = new MqttPahoMessageHandler(this.clientId, mqttClientFactory());
         messageHandler.setAsync(true);
-        messageHandler.setDefaultTopic(this.topic);
+        messageHandler.setDefaultTopic(this.dnTopic);
         return messageHandler;
     }
 
     @Bean
     public IntegrationFlow mqttOutboundFlow() {
-        return f -> f.handle(new MqttPahoMessageHandler(url, clientId));
+        return f -> f.handle(new MqttPahoMessageHandler(this.url, this.clientId));
     }
-
-
 }
