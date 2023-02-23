@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,12 +41,12 @@ public class DeviceMessageRepositoryImpl implements DeviceMessageRepository {
         }
         if (request.from() != null) {
             sql.append(previous ? "AND " : "WHERE ").append("ts >= ? ");
-            params.add(request.from());
+            params.add(Timestamp.from(request.from().toInstant(ZoneOffset.UTC)));
             previous = true;
         }
         if (request.to() != null) {
             sql.append(previous ? "AND " : "WHERE ").append("ts <= ? ");
-            params.add(request.to());
+            params.add(Timestamp.from(request.to().toInstant(ZoneOffset.UTC)));
         }
         sql.append("LIMIT ? OFFSET ?");
         params.add(request.limit() != null ? request.limit() : 100);

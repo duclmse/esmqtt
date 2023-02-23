@@ -1,7 +1,6 @@
 package com.iot.service.interfaces;
 
 import com.iot.model.msg.DeviceInfo;
-import com.iot.model.request.ControlMessage;
 import reactor.core.publisher.Mono;
 
 import java.util.List;

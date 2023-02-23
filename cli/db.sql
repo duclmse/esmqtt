@@ -25,6 +25,14 @@ CREATE TABLE IF NOT EXISTS device_command_history (
     FOREIGN KEY device_command (device_id) REFERENCES device (id)
 );
 
+CREATE TABLE IF NOT EXISTS api_history (
+    ts       DATETIME,
+    endpoint VARCHAR(50),
+    method   VARCHAR(10),
+    body     TEXT,
+    PRIMARY KEY (ts, endpoint, method)
+);
+
 CREATE TABLE IF NOT EXISTS device_status_history (
     `device_id`       VARCHAR(50),
     `ts`              DATETIME,

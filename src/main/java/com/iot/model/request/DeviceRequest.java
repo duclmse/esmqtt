@@ -10,5 +10,4 @@ public class DeviceRequest {
 
     @JsonProperty("id")
     private String id;
-
 }

@@ -8,15 +8,19 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.http.HttpMethod;
 
 import java.time.LocalDateTime;
 
 @Data
 @Accessors(fluent = true)
-public class MessageHistoryRequest {
+public class ApiHistoryRequest {
 
-    @JsonProperty("device_id")
-    private String deviceId;
+    @JsonProperty("endpoint")
+    private String endpoint;
+
+    @JsonProperty("method")
+    private HttpMethod method;
 
     @JsonProperty("from")
     @JsonSerialize(using = LocalDateTimeSerializer.class)

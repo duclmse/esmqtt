@@ -1,7 +1,12 @@
 package com.iot.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.iot.model.request.ApiHistoryRequest;
 import com.iot.model.response.ObjectResponse;
+import com.iot.repository.interfaces.ApiHistoryRepository;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
@@ -13,11 +18,10 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.iot.model.response.ObjectResponse.of;
-import static org.springframework.http.ResponseEntity.*;
+import static org.springframework.http.ResponseEntity.ok;
 
 @Slf4j
 @RestController
@@ -25,7 +29,15 @@ import static org.springframework.http.ResponseEntity.*;
 @RequiredArgsConstructor
 public class GeneralApi {
 
+    private final ObjectMapper mapper = new ObjectMapper();
+
     private final JdbcTemplate jdbc;
+    private final ApiHistoryRepository apiHistoryRepository;
+
+    {
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
 
     @GetMapping("/test")
     public Mono<String> get() {
@@ -53,7 +65,8 @@ public class GeneralApi {
                 }
                 return dataList;
             }))
-            .doOnNext(l -> log.info("SQL\n\t{}\n  -> return {} column(s) x {} row(s)", sql.replace("\n", "\n\t"), l.columns.size(), l.data.size()))
+            .doOnNext(l -> log.info("SQL\n\t{}\n  -> return {} column(s) x {} row(s)", sql.replace("\n", "\n\t"),
+                l.columns.size(), l.data.size()))
             .map(l -> ok().body(of(0, "OK!", l)))
             .doOnError(e -> log.error("SQL\n\t{}\n  -> error {}", sql, e.getMessage()))
             .onErrorResume(e -> Mono.just(ok().body(of(1, e.getMessage()))));
@@ -68,6 +81,13 @@ public class GeneralApi {
             .map(l -> ok().body(of(0, "OK!", l)))
             .doOnError(e -> log.error("SQL\n\t{}\n  -> {}", sql, e.getMessage()))
             .onErrorResume(e -> Mono.just(ok().body(of(1, e.getMessage()))));
+    }
+
+    @PostMapping("/api/history")
+    public Mono<ResponseEntity<ObjectResponse>> apiHistory(@RequestBody String body) {
+        return Mono.fromCallable(() -> mapper.readValue(body, ApiHistoryRequest.class))
+            .map(apiHistoryRepository::getHistory)
+            .map(history -> ok(of(0, "okie", history)));
     }
 
     @Data

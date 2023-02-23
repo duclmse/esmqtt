@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.stream.Stream;
+
 import static com.iot.model.response.ObjectResponse.error;
 import static com.iot.model.response.ObjectResponse.of;
 import static org.springframework.http.HttpMethod.*;
@@ -69,7 +71,16 @@ public class DeviceApi {
             .map(device -> ok(of(0, "Create device successfully!")))
             .defaultIfEmpty(badRequest().body(of(1, "Couldn't create device")))
             .doOnError(throwable -> log.error("Couldn't create device: {}", throwable.getMessage()))
-            .onErrorReturn(Exception.class, status(INTERNAL_SERVER_ERROR).body(of(1, "Couldn't update device")));
+            .onErrorResume(throwable -> {
+                if (throwable instanceof ConstraintViolationException e) {
+                    var stream = e.getConstraintViolations()
+                        .stream()
+                        .map(violation -> violation.getConstraintDescriptor().getMessageTemplate())
+                        .toList();
+                    return Mono.just(status(INTERNAL_SERVER_ERROR).body(error(1, "Couldn't create device", stream)));
+                }
+                return Mono.just(status(INTERNAL_SERVER_ERROR).body(error(1, "Couldn't create device", throwable.getMessage())));
+            });
     }
 
     @PutMapping("/{device_id}")
@@ -87,6 +98,7 @@ public class DeviceApi {
 
     @DeleteMapping("/{device_id}")
     public Mono<ResponseEntity<ObjectResponse>> deleteDevice(@PathVariable("device_id") String id) {
+        publisher.publishEvent(new ApiCallEvent(this, DELETE, "/v1.0/device/" + id, null));
         return service.deleteDevice(id)
             .map(device -> ok(of(0, "Delete device successfully!")))
             .defaultIfEmpty(badRequest().body(of(1, "Couldn't delete device")))

@@ -42,6 +42,7 @@ dependencies {
     implementation(spring("boot", "-starter-validation"))
     // implementation(spring("integration", "-mqtt"))
 
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2")
     implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
     implementation("com.mysql:mysql-connector-j:8.0.32")
 
