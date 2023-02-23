@@ -40,8 +40,9 @@ dependencies {
     implementation(spring("boot", "-starter-security"))
     implementation(spring("boot", "-starter-actuator"))
     implementation(spring("boot", "-starter-validation"))
-    implementation(spring("integration", "-mqtt"))
+    // implementation(spring("integration", "-mqtt"))
 
+    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
     implementation("com.mysql:mysql-connector-j:8.0.32")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")

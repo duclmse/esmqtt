@@ -1,7 +1,6 @@
 package com.iot.service.iml;
 
 import com.iot.model.msg.DeviceInfo;
-import com.iot.model.request.ControlMessage;
 import com.iot.repository.interfaces.DeviceRepository;
 import com.iot.service.interfaces.DeviceService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +31,7 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public Mono<Integer> createDevice(DeviceInfo info) {
+        log.debug("device svc - create device");
         return Mono.justOrEmpty(repository.createDevice(info));
     }
 
@@ -43,10 +43,5 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public Mono<Integer> deleteDevice(String id) {
         return Mono.justOrEmpty(repository.deleteDevice(id));
-    }
-
-    @Override
-    public Mono<Object> controlDevice(String id, ControlMessage msg) {
-        return Mono.empty();
     }
 }

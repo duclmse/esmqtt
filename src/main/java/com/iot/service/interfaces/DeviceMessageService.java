@@ -6,7 +6,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public interface DeviceHandlingService {
+public interface DeviceMessageService {
 
     Mono<List<DeviceMessageHistory>> getMessageHistory(MessageHistoryRequest req);
 }

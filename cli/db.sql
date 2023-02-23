@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS device (
 
 CREATE TABLE IF NOT EXISTS device_message_history (
     `device_id` VARCHAR(50),
-    `ts`        TIMESTAMP,
+    `ts`        DATETIME,
     `message`   TEXT,
     PRIMARY KEY (device_id, ts),
     FOREIGN KEY device_message (device_id) REFERENCES device (id)
@@ -19,8 +19,30 @@ CREATE TABLE IF NOT EXISTS device_message_history (
 
 CREATE TABLE IF NOT EXISTS device_command_history (
     `device_id` VARCHAR(50),
-    `ts`        TIMESTAMP,
+    `ts`        DATETIME,
     `message`   TEXT,
+    PRIMARY KEY (device_id, ts),
+    FOREIGN KEY device_command (device_id) REFERENCES device (id)
+);
+
+CREATE TABLE IF NOT EXISTS device_status_history (
+    `device_id`       VARCHAR(50),
+    `ts`              DATETIME,
+    `switch_1`        BOOL,
+    `countdown_1`     INT,
+    `add_ele`         INT,
+    `cur_current`     INT,
+    `cur_power`       INT,
+    `cur_voltage`     INT,
+    `test_bit`        INT,
+    `voltage_coe`     INT,
+    `electric_coe`    INT,
+    `power_coe`       INT,
+    `electricity_coe` INT,
+    `fault`           VARCHAR(10),
+    `relay_status`    VARCHAR(10),
+    `cycle_time`      VARCHAR(50),
+    `random_time`     VARCHAR(50),
     PRIMARY KEY (device_id, ts),
     FOREIGN KEY device_command (device_id) REFERENCES device (id)
 );

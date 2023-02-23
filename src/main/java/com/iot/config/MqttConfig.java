@@ -1,21 +1,11 @@
 package com.iot.config;
 
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.eclipse.paho.client.mqttv3.*;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.core.MessageProducer;
-import org.springframework.integration.dsl.IntegrationFlow;
-import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
-import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
-import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannelAdapter;
-import org.springframework.integration.mqtt.outbound.MqttPahoMessageHandler;
-import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
-import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.MessageHandler;
+import org.springframework.context.annotation.Primary;
 
 @Configuration
 public class MqttConfig {
@@ -47,13 +37,6 @@ public class MqttConfig {
     @Value("${iot.mqtt.auto-reconnect}")
     private boolean autoReconnect;
 
-//    @Bean("mqtt-publisher-client")
-//    public MqttClient mqttPublisherClient() throws MqttException {
-//        var client = new MqttClient(url, clientId, new MemoryPersistence());
-//        client.connect(connectOptions());
-//        return client;
-//    }
-
     public MqttConnectOptions connectOptions() {
         var options = new MqttConnectOptions();
         options.setServerURIs(new String[]{this.url});
@@ -65,46 +48,19 @@ public class MqttConfig {
         return options;
     }
 
-    @Bean
-    @Qualifier("mqttInputChannel")
-    public MessageChannel mqttInputChannel() {
-        return new DirectChannel();
+    @Bean("mqtt-publisher-client")
+    public MqttClient mqttPublisherClient() throws MqttException {
+        var client = new MqttClient(url, clientId, new MemoryPersistence());
+        client.connect(connectOptions());
+        return client;
     }
 
-    @Bean
-    public MessageProducer inbound() {
-        var adapter = new MqttPahoMessageDrivenChannelAdapter(this.url, this.clientId, this.upTopic);
-        adapter.setConverter(new DefaultPahoMessageConverter());
-        adapter.setOutputChannel(mqttInputChannel());
-        adapter.setCompletionTimeout(this.timeout);
-        adapter.setQos(this.qos);
-        return adapter;
-    }
-
-    @Bean
-    public MqttPahoClientFactory mqttClientFactory() {
-        DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
-        factory.setConnectionOptions(connectOptions());
-        return factory;
-    }
-
-    @Bean
-    @Qualifier("mqttOutboundChannel")
-    public MessageChannel mqttOutboundChannel() {
-        return new DirectChannel();
-    }
-
-    @Bean
-    @ServiceActivator(inputChannel = "mqttOutboundChannel")
-    public MessageHandler mqttOutbound() {
-        MqttPahoMessageHandler messageHandler = new MqttPahoMessageHandler(this.clientId, mqttClientFactory());
-        messageHandler.setAsync(true);
-        messageHandler.setDefaultTopic(this.dnTopic);
-        return messageHandler;
-    }
-
-    @Bean
-    public IntegrationFlow mqttOutboundFlow() {
-        return f -> f.handle(new MqttPahoMessageHandler(this.url, this.clientId));
+    @Primary
+    @Bean("mqtt-subscriber-client")
+    public MqttClient mqttSubscriberClient(MqttCallback handler) throws MqttException {
+        var client = new MqttClient(url, clientId, new MemoryPersistence());
+        client.connect(connectOptions());
+        client.setCallback(handler);
+        return client;
     }
 }

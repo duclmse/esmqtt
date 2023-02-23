@@ -1,7 +1,6 @@
 package com.iot.model.msg;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -37,6 +36,10 @@ public class DeviceMessage {
     private String devId;
 
     @JsonProperty("dps")
+    private DeviceStatus status;
+
+    @JsonIgnore
+    @JsonAnyGetter
     private Map<String, Object> properties = new HashMap<>();
 
     @JsonAnySetter

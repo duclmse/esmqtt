@@ -18,5 +18,4 @@ public interface DeviceService {
 
     Mono<Integer> deleteDevice(String id);
 
-    Mono<Object> controlDevice(String id, ControlMessage msg);
 }

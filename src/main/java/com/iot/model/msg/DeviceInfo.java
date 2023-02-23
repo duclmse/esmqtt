@@ -12,7 +12,7 @@ public class DeviceInfo {
 
     @JsonAlias({"id"})
     @JsonProperty("dev_id")
-    @NotBlank(message = "ID is mandatory")
+    @NotBlank(message = "ID field is missing or blank")
     private String id;
 
     @JsonProperty("name")
@@ -21,7 +21,8 @@ public class DeviceInfo {
     @JsonProperty("ip")
     private String ip;
 
-    @JsonProperty("ver")
+    @JsonAlias("ver")
+    @JsonProperty("version")
     private String version;
 
     @JsonProperty("hub_id")
@@ -30,6 +31,7 @@ public class DeviceInfo {
     @JsonProperty("product_id")
     private String productId;
 
+    @JsonAlias("device_type")
     @JsonProperty("dev_type")
     private String deviceType;
 

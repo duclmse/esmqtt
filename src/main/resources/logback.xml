@@ -6,12 +6,12 @@
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <Pattern>%d{MM-dd HH:mm:ss.SSS} %highlight(%-5level): %msg%n</Pattern>
+            <Pattern>%d{MM-dd HH:mm:ss.SSS} %highlight(%-5level) %logger{20}: %msg%n</Pattern>
         </layout>
     </appender>
 
     <appender name="log_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${DEV_HOME}/vtag.log</file>
+        <file>${DEV_HOME}/iot.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5.5level [%-10.10thread] %logger{36}.%M - %msg%n</Pattern>
         </encoder>
