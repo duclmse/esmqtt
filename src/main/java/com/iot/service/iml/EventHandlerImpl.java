@@ -1,12 +1,11 @@
 package com.iot.service.iml;
 
 import com.iot.model.event.ApiCallEvent;
+import com.iot.model.event.DeviceCommandEvent;
 import com.iot.model.event.DeviceMessageEvent;
 import com.iot.repository.interfaces.ApiHistoryRepository;
 import com.iot.repository.interfaces.DeviceCommandRepository;
 import com.iot.repository.interfaces.DeviceMessageRepository;
-import com.iot.service.interfaces.DeviceCommandService;
-import com.iot.service.interfaces.DeviceMessageService;
 import com.iot.service.interfaces.EventHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +26,7 @@ public class EventHandlerImpl implements EventHandler {
     private final ApiHistoryRepository apiRepository;
 
     @Async
+    @Override
     @EventListener
     public void apiCallEventListener(ApiCallEvent event) {
         log.info("handle api call event {}", event);
@@ -37,6 +37,7 @@ public class EventHandlerImpl implements EventHandler {
     }
 
     @Async
+    @Override
     @EventListener
     public void deviceMessageEventListener(DeviceMessageEvent event) {
         log.info("handle device message event {}", event);
@@ -44,5 +45,16 @@ public class EventHandlerImpl implements EventHandler {
         Mono.fromCallable(() -> messageRepository.saveMessage(event.deviceId(), event.ts(), event.msg()))
             .doOnNext(saved -> log.info("saved {} device message(s) to DB", saved))
             .subscribe();
+    }
+
+    @Async
+    @Override
+    @EventListener
+    public void deviceMessageEventListener(DeviceCommandEvent event) {
+        log.info("handle device message event {}", event);
+
+        Mono.fromCallable(
+            () -> commandRepository.saveCommand(event.deviceId(), Instant.ofEpochMilli(event.getTimestamp()),
+                event.msg())).doOnNext(saved -> log.info("saved {} api call(s) to DB", saved)).subscribe();
     }
 }

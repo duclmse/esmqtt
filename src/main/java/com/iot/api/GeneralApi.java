@@ -67,9 +67,9 @@ public class GeneralApi {
             }))
             .doOnNext(l -> log.info("SQL\n\t{}\n  -> return {} column(s) x {} row(s)", sql.replace("\n", "\n\t"),
                 l.columns.size(), l.data.size()))
-            .map(l -> ok().body(of(0, "OK!", l)))
+            .map(l -> ok(of(0, "OK!", l)))
             .doOnError(e -> log.error("SQL\n\t{}\n  -> error {}", sql, e.getMessage()))
-            .onErrorResume(e -> Mono.just(ok().body(of(1, e.getMessage()))));
+            .onErrorResume(e -> Mono.just(ok(of(1, e.getMessage()))));
     }
 
     @PostMapping("/sql/update")
@@ -78,9 +78,9 @@ public class GeneralApi {
             .publishOn(Schedulers.boundedElastic())
             .mapNotNull(j -> j.update(sql))
             .doOnNext(l -> log.info("SQL\n\t{}\n  -> updated {} row(s)", sql.replace("\n", "\n\t"), l))
-            .map(l -> ok().body(of(0, "OK!", l)))
+            .map(l -> ok(of(0, "OK!", l)))
             .doOnError(e -> log.error("SQL\n\t{}\n  -> {}", sql, e.getMessage()))
-            .onErrorResume(e -> Mono.just(ok().body(of(1, e.getMessage()))));
+            .onErrorResume(e -> Mono.just(ok(of(1, e.getMessage()))));
     }
 
     @PostMapping("/api/history")

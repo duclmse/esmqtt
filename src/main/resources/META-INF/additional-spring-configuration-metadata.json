@@ -6,7 +6,12 @@
       "description": "Description for iot.mqtt.qos."
     },
     {
-      "name": "iot.mqtt.client-id",
+      "name": "iot.mqtt.sub-client-id",
+      "type": "java.lang.String",
+      "description": "Description for iot.mqtt.client-id."
+    },
+    {
+      "name": "iot.mqtt.pub-client-id",
       "type": "java.lang.String",
       "description": "Description for iot.mqtt.client-id."
     },

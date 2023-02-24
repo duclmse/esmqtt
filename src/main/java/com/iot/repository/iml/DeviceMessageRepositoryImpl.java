@@ -1,6 +1,7 @@
 package com.iot.repository.iml;
 
 import com.iot.model.msg.DeviceMessageHistory;
+import com.iot.model.msg.DeviceStatus;
 import com.iot.model.request.MessageHistoryRequest;
 import com.iot.repository.interfaces.DeviceMessageRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,17 @@ public class DeviceMessageRepositoryImpl implements DeviceMessageRepository {
     }
 
     @Override
+    public int saveStatus(String id, Instant ts, DeviceStatus msg) {
+        var sql = "INSERT INTO device_status_history(`device_id`, `ts`, `switch_1`, `countdown_1`, `add_ele`, "
+            + "`cur_current`, `cur_power`, `cur_voltage`, `test_bit`, `voltage_coe`, `electric_coe`, `power_coe`, "
+            + "`electricity_coe`, `fault`, `relay_status`, `cycle_time`, `random_time`) VALUES (?, ?, ?, ?, ?, ?, ?, "
+            + "?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+        return jdbc.update(sql, id, Timestamp.from(ts), msg.switch1(), msg.countdown1(), msg.addEle(), msg.curCurrent(),
+            msg.curPower(), msg.curVoltage(), msg.testBit(), msg.voltageCoe(), msg.electricCoe(), msg.powerCoe(),
+            msg.electricCoe(), msg.fault(), msg.relayStatus(), msg.cycleTime(), msg.randomTime());
+    }
+
+    @Override
     public List<DeviceMessageHistory> getMessages(MessageHistoryRequest request) {
         var sql = new StringBuilder("SELECT device_id, ts, message FROM device_message_history ");
         var params = new ArrayList<>();
@@ -56,8 +68,7 @@ public class DeviceMessageRepositoryImpl implements DeviceMessageRepository {
     }
 
     private DeviceMessageHistory map(ResultSet rs, int i) throws SQLException {
-        return new DeviceMessageHistory()
-            .id(rs.getString("device_id"))
+        return new DeviceMessageHistory().id(rs.getString("device_id"))
             .ts(rs.getTimestamp("ts").toInstant())
             .msg(rs.getString("msg"));
     }

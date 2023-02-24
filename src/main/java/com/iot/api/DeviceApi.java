@@ -14,11 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
-import java.util.stream.Stream;
-
 import static com.iot.model.response.ObjectResponse.error;
 import static com.iot.model.response.ObjectResponse.of;
 import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.ResponseEntity.*;
 
@@ -67,8 +66,8 @@ public class DeviceApi {
                     ? Mono.just(info)
                     : Mono.error(new ConstraintViolationException(violations));
             })
-            .map(service::createDevice)
-            .map(device -> ok(of(0, "Create device successfully!")))
+            .flatMap(service::createDevice)
+            .map(created -> ok(of(0, "Create " + created + " device successfully!")))
             .defaultIfEmpty(badRequest().body(of(1, "Couldn't create device")))
             .doOnError(throwable -> log.error("Couldn't create device: {}", throwable.getMessage()))
             .onErrorResume(throwable -> {
@@ -77,9 +76,10 @@ public class DeviceApi {
                         .stream()
                         .map(violation -> violation.getConstraintDescriptor().getMessageTemplate())
                         .toList();
-                    return Mono.just(status(INTERNAL_SERVER_ERROR).body(error(1, "Couldn't create device", stream)));
+                    return Mono.just(status(BAD_REQUEST).body(error(1, "Invalid input", stream)));
                 }
-                return Mono.just(status(INTERNAL_SERVER_ERROR).body(error(1, "Couldn't create device", throwable.getMessage())));
+                return Mono.just(
+                    status(INTERNAL_SERVER_ERROR).body(error(1, "Couldn't create device", throwable.getMessage())));
             });
     }
 
@@ -89,8 +89,8 @@ public class DeviceApi {
     ) {
         publisher.publishEvent(new ApiCallEvent(this, PUT, "/v1.0/device/" + id, body));
         return Mono.fromCallable(() -> mapper.readValue(body, DeviceInfo.class))
-            .map(info -> service.updateDevice(id, info))
-            .map(device -> ok(of(0, "Update device successfully!")))
+            .flatMap(info -> service.updateDevice(id, info))
+            .map(updated -> ok(of(0, "Update " + updated + " device successfully!")))
             .defaultIfEmpty(badRequest().body(of(1, "Couldn't update device")))
             .doOnError(throwable -> log.error("Couldn't update device", throwable))
             .onErrorReturn(Exception.class, status(INTERNAL_SERVER_ERROR).body(of(1, "Couldn't update device")));
@@ -100,7 +100,7 @@ public class DeviceApi {
     public Mono<ResponseEntity<ObjectResponse>> deleteDevice(@PathVariable("device_id") String id) {
         publisher.publishEvent(new ApiCallEvent(this, DELETE, "/v1.0/device/" + id, null));
         return service.deleteDevice(id)
-            .map(device -> ok(of(0, "Delete device successfully!")))
+            .map(device -> ok(of(0, "Delete " + device + " device successfully!")))
             .defaultIfEmpty(badRequest().body(of(1, "Couldn't delete device")))
             .doOnError(throwable -> log.error("Couldn't delete device", throwable))
             .onErrorReturn(Exception.class, status(INTERNAL_SERVER_ERROR).body(of(1, "Couldn't delete device")));

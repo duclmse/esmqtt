@@ -19,9 +19,8 @@ iot:
   mqtt:
     qos: 1
     auto-reconnect: true
-    up-topic: home_data/device/+/up/report
-    dn-topic: home_data/device/1234/dn/ctr
-    client-id: 1823718927389127389712
+    up-topic: /home_data/device/+/up/report
+    dn-topic: /home_data/device/%s/dn/ctr
     timeout: 5000
   storage:
     location: ./storage/
@@ -42,3 +41,5 @@ iot:
     url: tcp://broker.hivemq.com:1883
     username: test123
     password: 1
+    pub-client-id:
+    sub-client-id:

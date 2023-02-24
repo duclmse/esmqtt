@@ -36,7 +36,7 @@ public class DeviceCommandApi {
         publisher.publishEvent(new ApiCallEvent(this, POST, "/v1.0/command/history", body));
         return Mono.fromCallable(() -> mapper.readValue(body, CommandHistoryRequest.class))
             .flatMap(service::getCommandHistory)
-            .map(history -> ok().body(of(0, "Get command history successfully!", history)))
+            .map(history -> ok(of(0, "Get command history successfully!", history)))
             .onErrorResume(JsonProcessingException.class,
                 throwable -> Mono.just(badRequest().body(of(1, "Invalid input"))))
             .onErrorResume(Exception.class,
@@ -47,8 +47,8 @@ public class DeviceCommandApi {
     public Mono<ResponseEntity<ObjectResponse>> sendCommand(@RequestBody String body) {
         publisher.publishEvent(new ApiCallEvent(this, POST, "/v1.0/command", body));
         return Mono.fromCallable(() -> mapper.readValue(body, ServerMessage.class))
-            .map(service::sendControlMsg)
-            .map(done -> ok().body(of(0, "Publish command successfully")))
+            .flatMap(service::sendControlMsg)
+            .map(done -> ok(of(0, "Published command")))
             .onErrorResume(JsonProcessingException.class,
                 throwable -> Mono.just(badRequest().body(of(1, "Invalid input"))))
             .onErrorResume(Exception.class,

@@ -12,16 +12,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class MqttPublisherImpl implements MqttPublisher {
 
-    private final MqttClient client;
+    private final MqttClient publisher;
 
-    public MqttPublisherImpl(@Qualifier("mqtt-publisher-client") MqttClient client) {
-        this.client = client;
+    public MqttPublisherImpl(@Qualifier("publisher") MqttClient client) {
+        this.publisher = client;
     }
 
     @Override
     public void publish(String topic, byte[] payload) {
         try {
-            client.publish(topic, new MqttMessage(payload));
+            publisher.publish(topic, new MqttMessage(payload));
         } catch (MqttException e) {
             log.error("Couldn't pub {} bytes to {}", payload.length, topic);
         }
@@ -30,7 +30,7 @@ public class MqttPublisherImpl implements MqttPublisher {
     @Override
     public void publish(String topic, MqttMessage message) {
         try {
-            client.publish(topic, message);
+            publisher.publish(topic, message);
         } catch (MqttException e) {
             log.error("Couldn't pub {} bytes to {}", message.getPayload().length, topic);
         }
@@ -39,7 +39,7 @@ public class MqttPublisherImpl implements MqttPublisher {
     @Override
     public void publish(String topic, byte[] payload, int qos, boolean retain) {
         try {
-            client.publish(topic, payload, qos, retain);
+            publisher.publish(topic, payload, qos, retain);
         } catch (MqttException e) {
             log.error("Couldn't pub {} bytes to {}", payload.length, topic);
         }

@@ -16,5 +16,4 @@ public interface DeviceService {
     Mono<Integer> updateDevice(String id, DeviceInfo info);
 
     Mono<Integer> deleteDevice(String id);
-
 }
