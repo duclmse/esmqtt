@@ -68,5 +68,4 @@ public class DeviceStatus {
     @JsonProperty("42")
     @JsonAlias({"random_time"})
     private String randomTime;
-
 }

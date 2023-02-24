@@ -37,5 +37,4 @@ public class DeviceInfo {
 
     @JsonProperty("home_id")
     private String homeId;
-
 }

@@ -1,6 +1,5 @@
 package com.iot.repository.iml;
 
-import com.iot.api.GeneralApi;
 import com.iot.model.request.ApiHistoryRequest;
 import com.iot.model.response.ApiHistory;
 import com.iot.repository.interfaces.ApiHistoryRepository;
@@ -62,8 +61,7 @@ public class ApiHistoryRepositoryImpl implements ApiHistoryRepository {
     }
 
     private ApiHistory map(ResultSet rs, int i) throws SQLException {
-        return new ApiHistory()
-            .ts(rs.getTimestamp("ts").toInstant())
+        return new ApiHistory().ts(rs.getTimestamp("ts").toInstant())
             .endpoint(rs.getString("endpoint"))
             .method(HttpMethod.valueOf(rs.getString("method")))
             .body(rs.getString("body"));

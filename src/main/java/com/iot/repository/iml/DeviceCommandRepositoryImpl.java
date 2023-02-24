@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -57,10 +56,8 @@ public class DeviceCommandRepositoryImpl implements DeviceCommandRepository {
     }
 
     private DeviceCommandHistory map(ResultSet rs, int i) throws SQLException {
-        return new DeviceCommandHistory()
-            .id(rs.getString("device_id"))
+        return new DeviceCommandHistory().id(rs.getString("device_id"))
             .ts(rs.getTimestamp("ts").toInstant())
             .msg(rs.getString("msg"));
     }
-
 }

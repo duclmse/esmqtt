@@ -48,5 +48,4 @@ public class ServerMessage extends DeviceInfo {
     public void add(String key, Object value) {
         properties.put(key, value);
     }
-
 }

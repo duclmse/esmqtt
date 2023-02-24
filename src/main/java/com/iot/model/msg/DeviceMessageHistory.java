@@ -18,5 +18,4 @@ public class DeviceMessageHistory {
 
     @JsonProperty("msg")
     private String msg;
-
 }

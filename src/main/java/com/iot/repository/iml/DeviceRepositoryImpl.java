@@ -51,8 +51,7 @@ public class DeviceRepositoryImpl implements DeviceRepository {
     }
 
     private DeviceInfo map(ResultSet rs) throws SQLException {
-        return new DeviceInfo()
-            .id(rs.getString("id"))
+        return new DeviceInfo().id(rs.getString("id"))
             .name(rs.getString("name"))
             .ip(rs.getString("ip"))
             .version(rs.getString("version"))

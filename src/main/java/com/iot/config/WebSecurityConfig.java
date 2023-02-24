@@ -44,11 +44,6 @@ public class WebSecurityConfig {
         //@formatter:on
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
     private AuthenticationWebFilter deviceAuthenticationFilter() {
         var filter = new AuthenticationWebFilter(new AuthenticationManagerConfig());
 
@@ -59,6 +54,11 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public PersistentTokenRepository persistentTokenRepository() {
         return new InMemoryTokenRepositoryImpl();
     }
@@ -66,7 +66,8 @@ public class WebSecurityConfig {
     @Bean("insecure-httpclient")
     public HttpClient httpClient() throws SSLException {
         var sslContext = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
-        return HttpClient.create().secure(t -> t.sslContext(sslContext))
+        return HttpClient.create()
+            .secure(t -> t.sslContext(sslContext))
             .responseTimeout(Duration.of(100, ChronoUnit.SECONDS));
     }
 }
