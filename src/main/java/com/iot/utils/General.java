@@ -1,4 +1,4 @@
-package com.iot.api;
+package com.iot.utils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,21 +27,15 @@ import static org.springframework.http.ResponseEntity.ok;
 @RestController
 @RequestMapping("/v1.0")
 @RequiredArgsConstructor
-public class GeneralApi {
+public class General {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
     private final JdbcTemplate jdbc;
-    private final ApiHistoryRepository apiHistoryRepository;
 
     {
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-    }
-
-    @GetMapping("/test")
-    public Mono<String> get() {
-        return Mono.just("okie");
     }
 
     @PostMapping("/sql/query")
@@ -81,13 +75,6 @@ public class GeneralApi {
             .map(l -> ok(of(0, "OK!", l)))
             .doOnError(e -> log.error("SQL\n\t{}\n  -> {}", sql, e.getMessage()))
             .onErrorResume(e -> Mono.just(ok(of(1, e.getMessage()))));
-    }
-
-    @PostMapping("/api/history")
-    public Mono<ResponseEntity<ObjectResponse>> apiHistory(@RequestBody String body) {
-        return Mono.fromCallable(() -> mapper.readValue(body, ApiHistoryRequest.class))
-            .map(apiHistoryRepository::getHistory)
-            .map(history -> ok(of(0, "okie", history)));
     }
 
     @Data

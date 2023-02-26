@@ -6,7 +6,9 @@ CREATE TABLE IF NOT EXISTS device (
     `hub_id`      VARCHAR(50),
     `product_id`  VARCHAR(50),
     `device_type` VARCHAR(50),
-    `home_id`     VARCHAR(50)
+    `home_id`     VARCHAR(50),
+    `heartbeat`   DATETIME,
+    `expect_hb`   DATETIME
 );
 
 CREATE TABLE IF NOT EXISTS device_message_history (

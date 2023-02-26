@@ -7,6 +7,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
@@ -19,29 +20,35 @@ public class MqttPublisherImpl implements MqttPublisher {
     }
 
     @Override
-    public void publish(String topic, byte[] payload) {
+    public Mono<Void> publish(String topic, byte[] payload) {
         try {
             publisher.publish(topic, new MqttMessage(payload));
+            return Mono.empty().then();
         } catch (MqttException e) {
             log.error("Couldn't pub {} bytes to {}", payload.length, topic);
+            return Mono.empty();
         }
     }
 
     @Override
-    public void publish(String topic, MqttMessage message) {
+    public Mono<Void> publish(String topic, MqttMessage message) {
         try {
             publisher.publish(topic, message);
+            return Mono.empty().then();
         } catch (MqttException e) {
             log.error("Couldn't pub {} bytes to {}", message.getPayload().length, topic);
+            return Mono.empty();
         }
     }
 
     @Override
-    public void publish(String topic, byte[] payload, int qos, boolean retain) {
+    public Mono<Void> publish(String topic, byte[] payload, int qos, boolean retain) {
         try {
             publisher.publish(topic, payload, qos, retain);
+            return Mono.empty().then();
         } catch (MqttException e) {
             log.error("Couldn't pub {} bytes to {}", payload.length, topic);
+            return Mono.empty();
         }
     }
 }
