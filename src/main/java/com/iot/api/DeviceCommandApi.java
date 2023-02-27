@@ -3,7 +3,7 @@ package com.iot.api;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iot.model.event.ApiCallEvent;
-import com.iot.model.msg.ServerMessage;
+import com.iot.model.msg.DeviceStatus;
 import com.iot.model.request.CommandHistoryRequest;
 import com.iot.model.response.ObjectResponse;
 import com.iot.service.interfaces.DeviceCommandService;
@@ -43,11 +43,11 @@ public class DeviceCommandApi {
                 throwable -> Mono.just(internalServerError().body(error(1, "error", throwable))));
     }
 
-    @PostMapping
-    public Mono<ResponseEntity<ObjectResponse>> sendCommand(@RequestBody String body) {
+    @PostMapping("/{device-id}")
+    public Mono<ResponseEntity<ObjectResponse>> sendCommand(@PathVariable("device-id") String deviceId, @RequestBody String body) {
         publisher.publishEvent(new ApiCallEvent(this, POST, "/v1.0/command", body));
-        return Mono.fromCallable(() -> mapper.readValue(body, ServerMessage.class))
-            .flatMap(service::sendControlMsg)
+        return Mono.fromCallable(() -> mapper.readValue(body, DeviceStatus.class))
+            .flatMap(msg -> service.sendControlMsg(deviceId, msg))
             .map(done -> ok(of(0, "Published command")))
             .onErrorResume(JsonProcessingException.class,
                 throwable -> Mono.just(badRequest().body(of(1, "Invalid input"))))

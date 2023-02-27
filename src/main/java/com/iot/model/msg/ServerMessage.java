@@ -13,30 +13,6 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 public class ServerMessage extends DeviceInfo {
 
-    @JsonProperty
-    private String name;
-
-    @JsonProperty
-    private String ip;
-
-    @JsonProperty
-    private String ver;
-
-    @JsonProperty("hub_id")
-    private String hubId;
-
-    @JsonProperty("product_id")
-    private String productId;
-
-    @JsonProperty("dev_type")
-    private String devType;
-
-    @JsonProperty("home_id")
-    private String homeId;
-
-    @JsonProperty("dev_id")
-    private String devId;
-
     @JsonProperty("dps")
     private DeviceStatus status;
 
@@ -47,5 +23,18 @@ public class ServerMessage extends DeviceInfo {
     @JsonAnySetter
     public void add(String key, Object value) {
         properties.put(key, value);
+    }
+
+    public static ServerMessage from(DeviceInfo info) {
+        var msg = new ServerMessage();
+        msg.id(info.id())
+            .name(info.name())
+            .ip(info.ip())
+            .version(info.version())
+            .hubId(info.hubId())
+            .productId(info.productId())
+            .deviceType(info.deviceType())
+            .homeId(info.homeId());
+        return msg;
     }
 }

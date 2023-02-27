@@ -1,17 +1,18 @@
 package com.iot.service.iml;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iot.config.MqttConfig;
 import com.iot.model.msg.DeviceCommandHistory;
+import com.iot.model.msg.DeviceStatus;
 import com.iot.model.msg.ServerMessage;
 import com.iot.model.request.CommandHistoryRequest;
 import com.iot.repository.interfaces.DeviceCommandRepository;
+import com.iot.repository.interfaces.DeviceRepository;
 import com.iot.service.interfaces.DeviceCommandService;
 import com.iot.service.interfaces.MqttPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -25,17 +26,24 @@ public class DeviceCommandServiceImpl implements DeviceCommandService {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
+    private final DeviceRepository deviceRepository;
     private final DeviceCommandRepository repository;
     private final MqttPublisher publisher;
     private final MqttConfig config;
 
     @Override
-    public Mono<Integer> sendControlMsg(ServerMessage msg) {
-        var topic = String.format(config.dnTopic(), msg.devId());
-        return Mono.fromCallable(() -> mapper.writeValueAsString(msg)).flatMap(s -> {
-            publisher.publish(topic, s.getBytes(StandardCharsets.UTF_8), 1, false);
-            return Mono.just(1);
-        });
+    public Mono<Void> sendControlMsg(String deviceId, DeviceStatus status) {
+        var topic = String.format(config.dnTopic(), deviceId);
+        return Mono.fromCallable(() -> deviceRepository.readDevice(deviceId))
+            .map(info -> ServerMessage.from(info).status(status))
+            .flatMap(info -> {
+                try {
+                    return Mono.just(mapper.writeValueAsString(info));
+                } catch (JsonProcessingException e) {
+                    return Mono.error(e);
+                }
+            })
+            .flatMap(s -> publisher.publish(topic, s.getBytes(StandardCharsets.UTF_8), 1, false));
     }
 
     @Override
