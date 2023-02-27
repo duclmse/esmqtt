@@ -1,10 +1,11 @@
 package com.iot;
 
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
+
+import javax.validation.Validation;
+import javax.validation.Validator;
 
 @SpringBootApplication
 public class Application {

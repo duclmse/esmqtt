@@ -5,14 +5,15 @@ import com.iot.model.event.ApiCallEvent;
 import com.iot.model.msg.DeviceInfo;
 import com.iot.model.response.ObjectResponse;
 import com.iot.service.interfaces.DeviceService;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validator;
 
 import static com.iot.model.response.ObjectResponse.error;
 import static com.iot.model.response.ObjectResponse.of;
@@ -71,11 +72,11 @@ public class DeviceApi {
             .defaultIfEmpty(badRequest().body(of(1, "Couldn't create device")))
             .doOnError(throwable -> log.error("Couldn't create device: {}", throwable.getMessage()))
             .onErrorResume(throwable -> {
-                if (throwable instanceof ConstraintViolationException e) {
-                    var stream = e.getConstraintViolations()
+                if (throwable instanceof ConstraintViolationException) {
+                    var stream = ((ConstraintViolationException) throwable).getConstraintViolations()
                         .stream()
                         .map(violation -> violation.getConstraintDescriptor().getMessageTemplate())
-                        .toList();
+                        .toArray();
                     return Mono.just(status(BAD_REQUEST).body(error(1, "Invalid input", stream)));
                 }
                 return Mono.just(

@@ -2,6 +2,7 @@ package com.iot.repository.interfaces;
 
 import com.iot.model.msg.DeviceInfo;
 
+import java.time.Instant;
 import java.util.List;
 
 public interface DeviceRepository {
@@ -15,4 +16,6 @@ public interface DeviceRepository {
     int updateDevice(String id, DeviceInfo info);
 
     int deleteDevice(String id);
+
+    int saveHeartbeat(String id, Instant ts, long hbTimeout);
 }

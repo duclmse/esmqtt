@@ -9,6 +9,9 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Slf4j
@@ -48,6 +51,13 @@ public class DeviceRepositoryImpl implements DeviceRepository {
     public int deleteDevice(String id) {
         var sql = "DELETE FROM device WHERE id = ?;";
         return jdbc.update(sql, id);
+    }
+
+    @Override
+    public int saveHeartbeat(String id, Instant ts, long hbTimeout) {
+        var expectHb = ts.plus(hbTimeout, ChronoUnit.MILLIS);
+        var sql = "UPDATE device SET heartbeat = ?, expect_hb = ? WHERE id = ?;";
+        return jdbc.update(sql, Timestamp.from(ts), Timestamp.from(expectHb), id);
     }
 
     private DeviceInfo map(ResultSet rs) throws SQLException {

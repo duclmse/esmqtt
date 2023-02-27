@@ -1,11 +1,13 @@
+import org.springframework.boot.gradle.tasks.bundling.BootJar
+
 group = "com.iot"
 version = "1.0-SNAPSHOT"
 
 plugins {
     java
     idea
-    id("org.springframework.boot") version "3.0.0"
-    id("io.spring.dependency-management") version "1.1.0"
+    id("org.springframework.boot") version "2.7.9"
+    id("io.spring.dependency-management") version "1.0.15.RELEASE"
 }
 
 repositories {
@@ -14,11 +16,21 @@ repositories {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
-val versions = mapOf("boot" to "3.0.0", "integration" to "6.0.2")
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
+
+tasks.getByName<BootJar>("bootJar") {
+    manifest {
+        attributes("Start-Class" to "com.iot.Application")
+    }
+}
+
+val versions = mapOf("boot" to "2.7.9")
 
 fun spring(project: String, module: String = ""): String {
     return "org.springframework.$project:spring-$project$module:${versions[project]}"
@@ -40,7 +52,6 @@ dependencies {
     implementation(spring("boot", "-starter-security"))
     implementation(spring("boot", "-starter-actuator"))
     implementation(spring("boot", "-starter-validation"))
-    // implementation(spring("integration", "-mqtt"))
 
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2")
     implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")

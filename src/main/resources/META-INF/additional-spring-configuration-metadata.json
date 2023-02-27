@@ -24,6 +24,11 @@
       "name": "iot.storage.location",
       "type": "java.lang.String",
       "description": "Description for iot.storage.location."
+    },
+    {
+      "name": "iot.device.heartbeat-timeout",
+      "type": "java.lang.String",
+      "description": "Description for iot.device.heartbeat-timeout."
     }
   ]
 }

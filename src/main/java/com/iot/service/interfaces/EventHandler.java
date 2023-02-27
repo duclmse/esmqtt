@@ -17,5 +17,9 @@ public interface EventHandler {
 
     @Async
     @EventListener
+    void deviceHeartbeatEventListener(DeviceMessageEvent event);
+
+    @Async
+    @EventListener
     void deviceMessageEventListener(DeviceCommandEvent event);
 }

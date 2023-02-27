@@ -24,14 +24,30 @@ iot:
     timeout: 5000
   storage:
     location: ./storage/
+  device:
+    heartbeat-timeout: 300000 # = 5 * 60 * 1000
 
 ---
 spring:
-  profile: prod
-
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/test?useSSL=false
+    username: root
+    password: 1
+  iot:
+    mqtt:
+      url: tcp://localhost:1883
+      username: iot
+      password: 1
+      pub-client-id:
+      sub-client-id:
 ---
 spring:
-  profile: dev
+  config:
+    activate:
+      on-profile: dev
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/test?useSSL=false
     username: root
