@@ -10,6 +10,7 @@ import java.util.Map;
 
 @Data
 @Accessors(fluent = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @EqualsAndHashCode(callSuper = true)
 public class ServerMessage extends DeviceInfo {
 

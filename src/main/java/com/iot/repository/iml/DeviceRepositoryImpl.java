@@ -68,6 +68,8 @@ public class DeviceRepositoryImpl implements DeviceRepository {
             .hubId(rs.getString("hub_id"))
             .productId(rs.getString("product_id"))
             .deviceType(rs.getString("device_type"))
-            .homeId(rs.getString("home_id"));
+            .homeId(rs.getString("home_id"))
+            .heartbeat(rs.getTimestamp("heartbeat").toInstant())
+            .expectHeartbeat(rs.getTimestamp("expect_hb").toInstant());
     }
 }

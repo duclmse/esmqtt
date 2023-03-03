@@ -1,4 +1,6 @@
 spring:
+  profiles:
+    active: prod
   main:
     web-application-type: reactive
   webflux:
@@ -13,7 +15,7 @@ spring:
       validation-query: SELECT 1
 
 server:
-  port: 8888
+  port: 8080
 
 iot:
   mqtt:
@@ -33,16 +35,17 @@ spring:
     activate:
       on-profile: prod
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/test?useSSL=false
+    url: jdbc:mysql://127.0.0.1:3306/iot?useSSL=false
     username: root
+    password: Icom@2023
+iot:
+  mqtt:
+    url: tcp://localhost:22283
+    username: iot
     password: 1
-  iot:
-    mqtt:
-      url: tcp://localhost:1883
-      username: iot
-      password: 1
-      pub-client-id:
-      sub-client-id:
+    pub-client-id: java-server-publisher
+    sub-client-id: java-server-subscriber
+
 ---
 spring:
   config:

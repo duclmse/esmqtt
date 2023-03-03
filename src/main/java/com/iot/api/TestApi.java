@@ -18,6 +18,11 @@ public class TestApi {
 
     private final Path basePath = Paths.get("./files");
 
+    @GetMapping()
+    public Mono<String> test() {
+        return Mono.just("ok");
+    }
+
     @PostMapping("/file/single")
     public Mono<Void> upload(
         @RequestPart("user-name") String name, @RequestPart("fileToUpload") Mono<FilePart> filePartMono

@@ -2,6 +2,7 @@ package com.iot.config;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Data
+@Slf4j
 @Accessors(fluent = true)
 @Configuration
 public class MqttConfig {
@@ -51,8 +53,9 @@ public class MqttConfig {
         if (clientId == null || clientId.equals("")) {
             clientId = MqttClient.generateClientId();
         }
-        var client = new MqttClient(url, clientId, new MemoryPersistence());
+        var client = new MqttClient(this.url, clientId, new MemoryPersistence());
         client.connect(connectOptions());
+        log.info("publisher {} connected to the broker @ {}", clientId, this.url);
         return client;
     }
 

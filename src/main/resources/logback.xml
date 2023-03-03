@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="false">
-    <property name="DEV_HOME" value="./logs"/>
+    <property name="DEV_HOME" value="/logs"/>
+    <property name="CURRENT_LOG" value="iot"/>
+    <property name="ROLLING_LOG" value="history"/>
 
     <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
 
@@ -11,15 +13,17 @@
     </appender>
 
     <appender name="log_file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${DEV_HOME}/iot.log</file>
+        <file>${DEV_HOME}/${CURRENT_LOG}.log</file>
+        <immediateFlush>true</immediateFlush>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5.5level [%-10.10thread] %logger{36}.%M - %msg%n</Pattern>
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5.5level [%-5thread] %logger{20}.%M - %msg%n</Pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${DEV_HOME}/archived/alarm.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${DEV_HOME}/archived/${ROLLING_LOG}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>10MB</maxFileSize>
+                <maxFileSize>100MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>1</maxHistory>
         </rollingPolicy>
     </appender>
 
@@ -27,7 +31,7 @@
         <appender-ref ref="console"/>
     </root>
 
-    <logger name="com.viettel.vtag" level="INFO">
+    <logger name="com.iot" level="INFO">
         <appender-ref ref="log_file"/>
     </logger>
 </configuration>

@@ -34,6 +34,7 @@ public class DeviceCommandApi {
     @PostMapping("/history")
     public Mono<ResponseEntity<ObjectResponse>> getCommandHistory(@RequestBody String body) {
         publisher.publishEvent(new ApiCallEvent(this, POST, "/v1.0/command/history", body));
+
         return Mono.fromCallable(() -> mapper.readValue(body, CommandHistoryRequest.class))
             .flatMap(service::getCommandHistory)
             .map(history -> ok(of(0, "Get command history successfully!", history)))
@@ -44,8 +45,11 @@ public class DeviceCommandApi {
     }
 
     @PostMapping("/{device-id}")
-    public Mono<ResponseEntity<ObjectResponse>> sendCommand(@PathVariable("device-id") String deviceId, @RequestBody String body) {
+    public Mono<ResponseEntity<ObjectResponse>> sendCommand(
+        @PathVariable("device-id") String deviceId, @RequestBody String body
+    ) {
         publisher.publishEvent(new ApiCallEvent(this, POST, "/v1.0/command", body));
+
         return Mono.fromCallable(() -> mapper.readValue(body, DeviceStatus.class))
             .flatMap(msg -> service.sendControlMsg(deviceId, msg))
             .map(done -> ok(of(0, "Published command")))

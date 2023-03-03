@@ -1,14 +1,17 @@
 package com.iot.model.msg;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotBlank;
+import java.time.Instant;
 
 @Data
 @Accessors(fluent = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DeviceInfo {
 
     @JsonAlias({"id"})
@@ -38,4 +41,10 @@ public class DeviceInfo {
 
     @JsonProperty("home_id")
     private String homeId;
+
+    @JsonProperty("heartbeat")
+    private Instant heartbeat;
+
+    @JsonProperty("expect_hb")
+    private Instant expectHeartbeat;
 }
