@@ -1,5 +1,7 @@
 package com.iot.repository.iml;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.iot.model.msg.DeviceInfo;
 import com.iot.repository.interfaces.DeviceRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
@@ -43,8 +46,9 @@ public class DeviceRepositoryImpl implements DeviceRepository {
 
     @Override
     public int updateDevice(String id, DeviceInfo info) {
-        var sql = "UPDATE device SET `name` = ? WHERE id = ?;";
-        return jdbc.update(sql, info.name(), id);
+        var sql = "UPDATE device SET `id` = ?, `name` = ?, `ip` = ?, `version` = ?, `hub_id` = ?, `product_id` = ?, "
+            + "`device_type` = ?, `home_id` = ? WHERE id = ?;";
+        return jdbc.update(sql, info.id(), info.name(), info.ip(), info.version(), info.hubId(), info.productId(), info.deviceType(), info.homeId(), id);
     }
 
     @Override
