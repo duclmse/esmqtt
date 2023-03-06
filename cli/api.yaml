@@ -1,0 +1,412 @@
+openapi: 3.0.3
+info:
+  title: Electric Socket
+  description: |-
+    Electric socket
+  contact:
+    email: duclmse@gmail.com
+  version: 1.0-SNAPSHOT
+servers:
+  - url: https://1.53.252.177:8080/es
+tags:
+  - {name: Device info, description: CRUD device}
+  - {name: Device message, description: View device message history}
+  - {name: Device command, description: Device operations}
+  - {name: FOTA, description: Firmware Over-The-Air}
+paths:
+  /v1.0/device:
+    post:
+      operationId: createDevice
+      tags: [Device info]
+      summary: Create specific device information
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceCreateRequest"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceCreateResponse"
+        "500":
+          description: Validation exception
+
+  /v1.0/device/all:
+    get:
+      operationId: getAllDevices
+      tags: [Device info]
+      summary: Get a list of device
+      parameters:
+        - name: limit
+          in: query
+          description: Number of devices to return
+          required: false
+          schema:
+            type: integer
+            format: int32
+          example: 100
+        - name: offset
+          in: query
+          description: Number of devices to offset
+          required: false
+          schema:
+            type: integer
+            format: int32
+          example: 0
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListDeviceResponse"
+        "500":
+          description: Validation exception
+
+  /v1.0/device/{device_id}:
+    get:
+      operationId: getDevice
+      tags: [Device info]
+      summary: Get specific device information
+      parameters:
+        - name: device_id
+          in: path
+          description: ID of device to return
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/CommonResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/FullDeviceInfo"
+        "500":
+          description: Validation exception
+
+    put:
+      operationId: updateDevice
+      tags: [Device info]
+      summary: Update specific device information
+      parameters:
+        - name: device_id
+          in: path
+          description: ID of device to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceUpdateRequest"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceUpdateResponse"
+        "500":
+          description: Validation exception
+
+    delete:
+      operationId: deleteDevice
+      tags: [Device info]
+      summary: Delete specific device information
+      parameters:
+        - name: device_id
+          in: path
+          description: ID of device to update
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceDeleteResponse"
+        "500":
+          description: Validation exception
+
+  /v1.0/message/history:
+    post:
+      operationId: getDeviceMessageHistory
+      tags: [Device message]
+      summary: Create specific device information
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceMessageRequest"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceMessageHistory"
+
+        "500":
+          description: Validation exception
+
+  /v1.0/command/history:
+    post:
+      operationId: getDeviceCommandHistory
+      tags: [Device command]
+      summary: Create specific device information
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceCommandRequest"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/DeviceCommandHistory"
+        "500":
+          description: Validation exception
+
+  /v1.0/command/{device_id}:
+    post:
+      operationId: controlDeviceStatus
+      tags: [Device command]
+      summary: Create specific device information
+      parameters:
+        - name: device_id
+          in: path
+          description: ID of device to return
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceControlRequest"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceControlResponse"
+        "500":
+          description: Validation exception
+
+components:
+  schemas:
+    ListDeviceResponse:
+      allOf:
+        - $ref: "#/components/schemas/CommonResponse"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/FullDeviceInfo"
+
+    DeviceCreateRequest:
+      allOf:
+        - $ref: "#/components/schemas/DeviceInfo"
+
+    DeviceCreateResponse:
+      allOf:
+        - $ref: "#/components/schemas/CommonResponse"
+
+    DeviceUpdateRequest:
+      allOf:
+        - $ref: "#/components/schemas/DeviceInfo"
+
+    DeviceUpdateResponse:
+      allOf:
+        - $ref: "#/components/schemas/CommonResponse"
+
+    DeviceDeleteResponse:
+      allOf:
+        - $ref: "#/components/schemas/CommonResponse"
+
+    DeviceMessageRequest:
+      type: object
+      properties:
+        device_id:
+          type: string
+          example: 1a2b3c4d5e
+        from:
+          type: string
+          format: date-time
+        to:
+          type: string
+          format: date-time
+        limit:
+          type: integer
+          format: int32
+          example: 100
+        offset:
+          type: integer
+          format: int32
+          example: 0
+
+    DeviceMessageHistory:
+      allOf:
+        - $ref: "#/components/schemas/CommonResponse"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/DeviceMessage"
+
+    DeviceCommandRequest:
+      type: object
+      properties:
+        device_id:
+          type: string
+          example: 1a2b3c4d5e
+        from:
+          type: string
+          format: date-time
+        to:
+          type: string
+          format: date-time
+        limit:
+          type: integer
+          format: int32
+          example: 100
+        offset:
+          type: integer
+          format: int32
+          example: 0
+
+    DeviceCommandHistory:
+      allOf:
+        - $ref: "#/components/schemas/CommonResponse"
+        - type: object
+          properties:
+            data:
+              type: array
+              items:
+                $ref: "#/components/schemas/DeviceMessage"
+
+    DeviceControlRequest:
+      $ref: "#/components/schemas/DeviceStatus"
+
+    DeviceControlResponse:
+      allOf:
+        - $ref: "#/components/schemas/CommonResponse"
+
+    CommonResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 0
+          description: 0 - successfully done, other - error code
+        message:
+          type: string
+          example: OK!
+          description: Describe response info (or error message in case of error)
+
+    DeviceInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 1a2b3c4d5e
+        name:
+          type: string
+          example: thing A
+        ip:
+          type: string
+          example: 192.168.0.1
+        version:
+          type: string
+          example: 1.0
+        hub_id:
+          type: string
+          example: a1b2c3d4e5
+        product_id:
+          type: string
+          example: a1b2c3d4e5
+        device_type:
+          type: string
+          example: smartcontroller
+        home_id:
+          type: string
+          example: my_home
+
+    FullDeviceInfo:
+      allOf:
+        - $ref: "#/components/schemas/DeviceInfo"
+        - type: object
+          properties:
+            heartbeat:
+              type: string
+              format: date-time
+            expect_hb:
+              type: string
+              format: date-time
+
+    DeviceStatus:
+      type: object
+      properties:
+        switch_1:
+          type: boolean
+        countdown_1:
+          type: integer
+        add_ele:
+          type: integer
+        cur_current:
+          type: integer
+        cur_power:
+          type: integer
+        cur_voltage:
+          type: integer
+        test_bit:
+          type: integer
+        voltage_coe:
+          type: integer
+        electric_coe:
+          type: integer
+        power_coe:
+          type: integer
+        electricity_coe:
+          type: integer
+        fault:
+          type: string
+          enum: [ov_cr, ov_vol, ov_pwr, ls_cr, ls_vol, ls_pow]
+        relay_status:
+          type: string
+          enum: ["off", "on", "memory"]
+        cycle_time:
+          type: string
+        random_time:
+          type: string
+
+    DeviceMessage:
+      type: object
+      properties:
+        id:
+          type: string
+        ts:
+          type: string
+          format: date-time
+        msg:
+          type: string
