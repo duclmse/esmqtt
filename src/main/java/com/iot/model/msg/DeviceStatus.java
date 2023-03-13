@@ -2,8 +2,14 @@ package com.iot.model.msg;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import java.io.IOException;
 
 @Data
 @Accessors(fluent = true)
@@ -11,6 +17,7 @@ public class DeviceStatus {
 
     @JsonProperty("1")
     @JsonAlias({"switch_1"})
+    @JsonSerialize(using = SwitchSerializer.class)
     private boolean switch1;
 
     @JsonProperty("9")
@@ -68,4 +75,16 @@ public class DeviceStatus {
     @JsonProperty("42")
     @JsonAlias({"random_time"})
     private String randomTime;
+
+    public static class SwitchSerializer extends StdSerializer<Boolean> {
+
+        protected SwitchSerializer() {
+            super(Boolean.class);
+        }
+
+        @Override
+        public void serialize(Boolean value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+            gen.writeString(value ? "yes": "no");
+        }
+    }
 }

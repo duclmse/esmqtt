@@ -1,7 +1,6 @@
-package com.iot.repository.iml;
+package com.iot.repository.impl;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.iot.model.msg.DeviceFullInfo;
 import com.iot.model.msg.DeviceInfo;
 import com.iot.repository.interfaces.DeviceRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
@@ -48,7 +46,8 @@ public class DeviceRepositoryImpl implements DeviceRepository {
     public int updateDevice(String id, DeviceInfo info) {
         var sql = "UPDATE device SET `id` = ?, `name` = ?, `ip` = ?, `version` = ?, `hub_id` = ?, `product_id` = ?, "
             + "`device_type` = ?, `home_id` = ? WHERE id = ?;";
-        return jdbc.update(sql, info.id(), info.name(), info.ip(), info.version(), info.hubId(), info.productId(), info.deviceType(), info.homeId(), id);
+        return jdbc.update(sql, info.id(), info.name(), info.ip(), info.version(), info.hubId(), info.productId(),
+            info.deviceType(), info.homeId(), id);
     }
 
     @Override
@@ -65,15 +64,23 @@ public class DeviceRepositoryImpl implements DeviceRepository {
     }
 
     private DeviceInfo map(ResultSet rs) throws SQLException {
-        return new DeviceInfo().id(rs.getString("id"))
+        var info = new DeviceFullInfo();
+        info.id(rs.getString("id"))
             .name(rs.getString("name"))
             .ip(rs.getString("ip"))
             .version(rs.getString("version"))
             .hubId(rs.getString("hub_id"))
             .productId(rs.getString("product_id"))
             .deviceType(rs.getString("device_type"))
-            .homeId(rs.getString("home_id"))
-            .heartbeat(rs.getTimestamp("heartbeat").toInstant())
-            .expectHeartbeat(rs.getTimestamp("expect_hb").toInstant());
+            .homeId(rs.getString("home_id"));
+        var heartbeat = rs.getTimestamp("heartbeat");
+        if (heartbeat != null) {
+            info.heartbeat(heartbeat.toInstant());
+        }
+        var expectHb = rs.getTimestamp("expect_hb");
+        if (expectHb != null) {
+            info.expectHeartbeat(expectHb.toInstant());
+        }
+        return info;
     }
 }

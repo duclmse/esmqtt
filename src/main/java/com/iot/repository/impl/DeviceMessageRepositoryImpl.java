@@ -1,4 +1,4 @@
-package com.iot.repository.iml;
+package com.iot.repository.impl;
 
 import com.iot.model.msg.DeviceMessageHistory;
 import com.iot.model.msg.DeviceStatus;

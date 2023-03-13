@@ -1,4 +1,4 @@
-package com.iot.service.iml;
+package com.iot.service.impl;
 
 import com.iot.service.interfaces.MqttPublisher;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.iot.service.iml;
+package com.iot.service.impl;
 
 import com.iot.model.event.ApiCallEvent;
 import com.iot.model.event.DeviceCommandEvent;
@@ -7,11 +7,13 @@ import com.iot.repository.interfaces.*;
 import com.iot.service.interfaces.EventHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.PostConstruct;
 import java.time.Instant;
 
 @Slf4j
@@ -23,6 +25,14 @@ public class EventHandlerImpl implements EventHandler {
     private final DeviceCommandRepository commandRepository;
     private final DeviceMessageRepository messageRepository;
     private final ApiHistoryRepository apiRepository;
+
+    @Value("${iot.device.heartbeat-timeout}")
+    private Integer hbTimeout;
+
+    @PostConstruct
+    public void postConstruct() {
+        log.info("hb timeout {}", hbTimeout);
+    }
 
     @Async
     @Override
@@ -38,10 +48,10 @@ public class EventHandlerImpl implements EventHandler {
     @Async
     @Override
     @EventListener
-    public void deviceMessageEventListener(DeviceMessageEvent event) {
+    public void deviceHeartbeatEventListener(DeviceMessageEvent event) {
         log.info("handle device message event {}", event);
 
-        Mono.fromCallable(() -> deviceRepository.saveHeartbeat(event.deviceId(), event.ts(), 300_000)) // 5 * 60 * 1000
+        Mono.fromCallable(() -> deviceRepository.saveHeartbeat(event.deviceId(), event.ts(), hbTimeout)) // 5 * 60 * 1000
             .doOnNext(saved -> log.info("saved {} device message(s) to DB", saved))
             .subscribe();
     }
@@ -49,7 +59,7 @@ public class EventHandlerImpl implements EventHandler {
     @Async
     @Override
     @EventListener
-    public void deviceHeartbeatEventListener(DeviceMessageEvent event) {
+    public void deviceMessageEventListener(DeviceMessageEvent event) {
         log.info("handle device message event {}", event);
 
         Mono.fromCallable(() -> messageRepository.saveMessage(event.deviceId(), event.ts(), event.msg()))

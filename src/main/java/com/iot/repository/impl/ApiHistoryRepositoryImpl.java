@@ -1,4 +1,4 @@
-package com.iot.repository.iml;
+package com.iot.repository.impl;
 
 import com.iot.model.request.ApiHistoryRequest;
 import com.iot.model.response.ApiHistory;

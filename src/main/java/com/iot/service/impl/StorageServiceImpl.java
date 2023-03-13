@@ -1,13 +1,16 @@
-package com.iot.service.iml;
+package com.iot.service.impl;
 
+import com.iot.model.request.FirmwareFile;
 import com.iot.service.interfaces.StorageService;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 import java.io.FileNotFoundException;
@@ -17,6 +20,7 @@ import java.nio.file.*;
 import java.util.stream.Stream;
 
 @Data
+@Slf4j
 @Service
 public class StorageServiceImpl implements StorageService {
 
@@ -36,12 +40,22 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public String store(String folder, MultipartFile file) {
+    public Mono<Void> store(FirmwareFile file) {
+        log.info("transfer file to {}", storage);
+        return file.firmwareFilePart()
+            .transferTo(storage.resolve(file.firmwareFilePart().filename()))
+            .doOnNext(unused -> {
+                log.info("unused {}", unused);
+            });
+    }
+
+    @Override
+    public String store(MultipartFile file) {
         try (var inputStream = file.getInputStream()) {
             if (file.isEmpty()) {
                 throw new RuntimeException("Failed to store empty file.");
             }
-            var destinationFile = storage.resolve(Paths.get(folder, file.getOriginalFilename()))
+            var destinationFile = storage.resolve(storage.resolve(file.getOriginalFilename()))
                 .normalize()
                 .toAbsolutePath();
             if (!destinationFile.getParent().equals(storage.toAbsolutePath())) {
@@ -57,8 +71,8 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public Stream<Path> loadAll() {
-        try {
-            return Files.walk(storage, 1).filter(path -> !path.equals(storage)).map(storage::relativize);
+        try (var paths = Files.walk(storage, 1)) {
+            return paths.filter(path -> !path.equals(storage)).map(storage::relativize);
         } catch (IOException e) {
             throw new RuntimeException("Failed to read stored files", e);
         }
@@ -85,7 +99,12 @@ public class StorageServiceImpl implements StorageService {
     }
 
     @Override
-    public void deleteAll() {
-        FileSystemUtils.deleteRecursively(storage.toFile());
+    public void deleteAll() throws IOException {
+        FileSystemUtils.deleteRecursively(storage);
+    }
+
+    @Override
+    public boolean delete(String path) throws IOException {
+        return Files.deleteIfExists(Paths.get(path));
     }
 }

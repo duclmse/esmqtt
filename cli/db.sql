@@ -56,3 +56,13 @@ CREATE TABLE IF NOT EXISTS device_status_history (
     PRIMARY KEY (device_id, ts),
     FOREIGN KEY device_command (device_id) REFERENCES device (id)
 );
+
+CREATE TABLE IF NOT EXISTS firmware_info (
+    `firmware_version` VARCHAR(10),
+    `hardware_version` VARCHAR(10),
+    `url`              VARCHAR(2048),
+    `location`         VARCHAR(2048),
+    `hash`             VARCHAR(1000),
+    `update_ts`        DATETIME,
+    PRIMARY KEY (firmware_version, hardware_version)
+);

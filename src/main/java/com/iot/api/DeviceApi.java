@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import javax.validation.ConstraintViolationException;
-import javax.validation.Validator;
 
 import static com.iot.model.response.ObjectResponse.error;
 import static com.iot.model.response.ObjectResponse.of;
@@ -30,7 +29,6 @@ public class DeviceApi {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    private final Validator validator;
     private final DeviceService service;
     private final ApplicationEventPublisher publisher;
 
@@ -40,6 +38,7 @@ public class DeviceApi {
         @RequestParam(name = "offset", required = false) Integer offset
     ) {
         publisher.publishEvent(new ApiCallEvent(this, GET, "/v1.0/device/all", null));
+
         return service.getAllDevices(limit, offset)
             .map(device -> ok(of(0, "Get device successfully!", device)))
             .defaultIfEmpty(badRequest().body(of(1, "Couldn't get device")))
@@ -50,23 +49,19 @@ public class DeviceApi {
     @GetMapping("/{device_id}")
     public Mono<ResponseEntity<ObjectResponse>> getDevice(@PathVariable("device_id") String id) {
         publisher.publishEvent(new ApiCallEvent(this, GET, "/v1.0/device/" + id, null));
+
         return service.getDevice(id)
             .map(device -> ok(of(0, "Get device successfully!", device)))
             .defaultIfEmpty(badRequest().body(of(1, "Couldn't get device")))
             .doOnError(throwable -> log.error("Couldn't get device", throwable))
-            .onErrorResume(e -> Mono.just(internalServerError().body(of(1, "Couldn't get device"))));
+            .onErrorResume(e -> Mono.just(internalServerError().body(of(1, "Couldn't get device: " + e.getMessage()))));
     }
 
     @PostMapping
     public Mono<ResponseEntity<ObjectResponse>> createDevice(@RequestBody String body) {
         publisher.publishEvent(new ApiCallEvent(this, POST, "/v1.0/device", body));
+
         return Mono.fromCallable(() -> mapper.readValue(body, DeviceInfo.class))
-            .flatMap(info -> {
-                var violations = validator.validate(info);
-                return violations.isEmpty()
-                    ? Mono.just(info)
-                    : Mono.error(new ConstraintViolationException(violations));
-            })
             .flatMap(service::createDevice)
             .map(created -> ok(of(0, "Create " + created + " device successfully!")))
             .defaultIfEmpty(badRequest().body(of(1, "Couldn't create device")))
@@ -94,7 +89,8 @@ public class DeviceApi {
             .map(updated -> ok(of(0, "Update " + updated + " device successfully!")))
             .defaultIfEmpty(badRequest().body(of(1, "Couldn't update device")))
             .doOnError(throwable -> log.error("Couldn't update device", throwable))
-            .onErrorReturn(Exception.class, status(INTERNAL_SERVER_ERROR).body(of(1, "Couldn't update device")));
+            .onErrorResume(
+                e -> Mono.just(status(INTERNAL_SERVER_ERROR).body(of(1, "Couldn't update device: " + e.getMessage()))));
     }
 
     @DeleteMapping("/{device_id}")
@@ -104,6 +100,7 @@ public class DeviceApi {
             .map(device -> ok(of(0, "Delete " + device + " device successfully!")))
             .defaultIfEmpty(badRequest().body(of(1, "Couldn't delete device")))
             .doOnError(throwable -> log.error("Couldn't delete device", throwable))
-            .onErrorReturn(Exception.class, status(INTERNAL_SERVER_ERROR).body(of(1, "Couldn't delete device")));
+            .onErrorResume(
+                e -> Mono.just(status(INTERNAL_SERVER_ERROR).body(of(1, "Couldn't delete device: " + e.getMessage()))));
     }
 }

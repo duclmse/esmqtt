@@ -27,8 +27,7 @@ public class ServerMessage extends DeviceInfo {
     }
 
     public static ServerMessage from(DeviceInfo info) {
-        var msg = new ServerMessage();
-        msg.id(info.id())
+        return (ServerMessage) new ServerMessage().id(info.id())
             .name(info.name())
             .ip(info.ip())
             .version(info.version())
@@ -36,6 +35,5 @@ public class ServerMessage extends DeviceInfo {
             .productId(info.productId())
             .deviceType(info.deviceType())
             .homeId(info.homeId());
-        return msg;
     }
 }

@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod
+    active: dev
   main:
     web-application-type: reactive
   webflux:
@@ -27,7 +27,7 @@ iot:
   storage:
     location: ./storage/
   device:
-    heartbeat-timeout: 300000 # = 5 * 60 * 1000
+    heartbeat-timeout: 300000 # = 5 * 60 * 1000 = 5 minutes
 
 ---
 spring:
@@ -52,7 +52,7 @@ spring:
     activate:
       on-profile: dev
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/test?useSSL=false
+    url: jdbc:mysql://127.0.0.1:3306/iot?useSSL=false
     username: root
     password: 1
 iot:

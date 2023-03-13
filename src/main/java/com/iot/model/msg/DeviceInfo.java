@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotBlank;
-import java.time.Instant;
 
 @Data
 @Accessors(fluent = true)
@@ -41,10 +40,4 @@ public class DeviceInfo {
 
     @JsonProperty("home_id")
     private String homeId;
-
-    @JsonProperty("heartbeat")
-    private Instant heartbeat;
-
-    @JsonProperty("expect_hb")
-    private Instant expectHeartbeat;
 }

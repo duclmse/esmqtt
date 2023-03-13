@@ -1,4 +1,4 @@
-package com.iot.service.iml;
+package com.iot.service.impl;
 
 import com.iot.model.msg.DeviceInfo;
 import com.iot.repository.interfaces.DeviceRepository;
@@ -9,6 +9,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validator;
 import java.util.List;
 
 @Slf4j
@@ -17,6 +19,7 @@ import java.util.List;
 public class DeviceServiceImpl implements DeviceService {
 
     private final DeviceRepository repository;
+    private final Validator validator;
 
     @Override
     public Mono<DeviceInfo> getDevice(String id) {
@@ -32,9 +35,16 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public Mono<Integer> createDevice(DeviceInfo info) {
+    public Mono<Integer> createDevice(DeviceInfo deviceInfo) {
         log.debug("device svc - create device");
-        return Mono.fromCallable(() -> repository.createDevice(info))
+        return Mono.just(deviceInfo)
+            .flatMap(info -> {
+                var violations = validator.validate(info);
+                return violations.isEmpty()
+                    ? Mono.just(info)
+                    : Mono.error(new ConstraintViolationException(violations));
+            })
+            .map(repository::createDevice)
             .onErrorMap(DataIntegrityViolationException.class, e -> new Exception(e.getMessage()));
     }
 

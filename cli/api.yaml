@@ -144,7 +144,7 @@ paths:
     post:
       operationId: getDeviceMessageHistory
       tags: [Device message]
-      summary: Create specific device information
+      summary: Get device message history
       requestBody:
         content:
           application/json:

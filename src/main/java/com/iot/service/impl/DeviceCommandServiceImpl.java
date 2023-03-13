@@ -1,4 +1,4 @@
-package com.iot.service.iml;
+package com.iot.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,6 +30,7 @@ public class DeviceCommandServiceImpl implements DeviceCommandService {
     private final DeviceCommandRepository repository;
     private final MqttPublisher publisher;
     private final MqttConfig config;
+
 
     @Override
     public Mono<Void> sendControlMsg(String deviceId, DeviceStatus status) {
