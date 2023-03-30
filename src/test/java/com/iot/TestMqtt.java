@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -43,36 +44,16 @@ public class TestMqtt {
     }
 
     @Test
+    public void testBoolean() throws IOException {
+        Boolean a = null;
+        var s = a ? "okie" : "f";
+        System.out.println(s);
+    }
+
+    @Test
     public void testParsingJson() throws IOException {
         var mapper = new ObjectMapper();
-        var payload = ("""
-                {
-                  "dps": {
-                    "1": 0,
-                    "9": 1400,
-                    "17": 33,
-                    "18": 40,
-                    "19": 1000,
-                    "20": 220,
-                    "21": 0,
-                    "22": 0,
-                    "23": 0,
-                    "24": 0,
-                    "25": 0,
-                    "26": 0,
-                    "38": 0,
-                    "41": 0,
-                    "42": 0
-                  },
-                  "name": "thingA",
-                  "ip": "XXXXXXXXXX",
-                  "ver": "3.3",
-                  "hub_id": "XXXXXXXX",
-                  "product_id": "XXXXXX",
-                  "dev_type": "SmartController",
-                  "home_id": "YYYYYYYYYYY",
-                  "dev_id": "XXXXXXXX"
-                }""").getBytes(StandardCharsets.UTF_8);
+        var payload = ("").getBytes(StandardCharsets.UTF_8);
         var o = mapper.readValue(payload, new TypeReference<Map<String,Object>>(){});
         log.info("{}", o);
         log.info("{}", mapper.writeValueAsString(o));
@@ -97,5 +78,20 @@ public class TestMqtt {
     @JsonFilter("myFilter")
     public static class MyDtoWithFilter {
 
+    }
+
+    @Test
+    public void test() {
+        var s = "automation";
+        var map = new HashMap<Character, Integer>();
+        for (int i = 0, l = s.length(); i < l; i++) {
+            map.compute(s.charAt(i), (k, v) -> v == null ? 1 : v + 1);
+        }
+        System.out.println(map);
+        map.entrySet()
+            .stream()
+            .sorted(Map.Entry.comparingByKey())
+            .forEach(entry -> System.out.printf("%c%d", entry.getKey(), entry.getValue()));
+        System.out.println();
     }
 }

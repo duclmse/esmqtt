@@ -70,6 +70,6 @@ public class DeviceMessageRepositoryImpl implements DeviceMessageRepository {
     private DeviceMessageHistory map(ResultSet rs, int i) throws SQLException {
         return new DeviceMessageHistory().id(rs.getString("device_id"))
             .ts(rs.getTimestamp("ts").toInstant())
-            .msg(rs.getString("msg"));
+            .msg(rs.getString("message"));
     }
 }

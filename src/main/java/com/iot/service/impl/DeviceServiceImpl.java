@@ -1,6 +1,9 @@
 package com.iot.service.impl;
 
+import com.iot.model.msg.DeviceFullInfo;
 import com.iot.model.msg.DeviceInfo;
+import com.iot.model.msg.DeviceStatusHistory;
+import com.iot.model.request.StatusHistoryRequest;
 import com.iot.repository.interfaces.DeviceRepository;
 import com.iot.service.interfaces.DeviceService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +26,7 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public Mono<DeviceInfo> getDevice(String id) {
-        return Mono.justOrEmpty(repository.readDevice(id));
+        return Mono.fromCallable(() -> repository.readDevice(id));
     }
 
     @Override
@@ -31,7 +34,7 @@ public class DeviceServiceImpl implements DeviceService {
         int l = limit == null ? 100 : limit;
         int o = offset == null ? 0 : offset;
         log.info("svc getAllDevices limit {} offset {}", l, o);
-        return Mono.justOrEmpty(repository.readAllDevices(l, o));
+        return Mono.fromCallable(() -> repository.readAllDevices(l, o));
     }
 
     @Override
@@ -50,11 +53,21 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public Mono<Integer> updateDevice(String id, DeviceInfo info) {
-        return Mono.justOrEmpty(repository.updateDevice(id, info));
+        return Mono.fromCallable(() -> repository.updateDevice(id, info));
     }
 
     @Override
     public Mono<Integer> deleteDevice(String id) {
-        return Mono.justOrEmpty(repository.deleteDevice(id));
+        return Mono.fromCallable(() -> repository.deleteDevice(id));
+    }
+
+    @Override
+    public Mono<DeviceFullInfo> getLatestStatus(String id) {
+        return Mono.fromCallable(() -> repository.getLatestStatus(id));
+    }
+
+    @Override
+    public Mono<DeviceStatusHistory> getStatusHistory(StatusHistoryRequest request) {
+        return Mono.fromCallable(() -> repository.getStatusHistory(request));
     }
 }

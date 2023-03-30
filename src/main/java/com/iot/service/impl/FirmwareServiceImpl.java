@@ -25,12 +25,12 @@ public class FirmwareServiceImpl implements FirmwareService {
         int l = limit == null ? 100 : limit;
         int o = offset == null ? 0 : offset;
         log.info("svc getAllFirmwareInfo limit {} offset {}", l, o);
-        return Mono.justOrEmpty(repository.getAllFirmwares(l, o));
+        return Mono.fromCallable(() -> repository.getAllFirmwares(l, o));
     }
 
     @Override
     public Mono<FirmwareInfo> getFirmwareFile(FirmwareIndex index) {
-        return Mono.justOrEmpty(repository.getFirmware(index));
+        return Mono.fromCallable(() -> repository.getFirmware(index));
     }
 
     @Override
@@ -42,7 +42,7 @@ public class FirmwareServiceImpl implements FirmwareService {
 
     @Override
     public Mono<Integer> storeLink(FirmwareLink firmwareLink) {
-        return Mono.just(repository.store(firmwareLink));
+        return Mono.fromCallable(() -> repository.store(firmwareLink));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class FirmwareServiceImpl implements FirmwareService {
 
     @Override
     public Mono<Integer> updateLink(FirmwareIndex index, FirmwareLink firmwareLink) {
-        return Mono.just(repository.update(index, firmwareLink));
+        return Mono.fromCallable(() -> repository.update(index, firmwareLink));
     }
 
     @Override

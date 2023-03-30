@@ -62,7 +62,7 @@ public class DeviceMessageServiceImpl implements MqttCallback, DeviceMessageServ
 
     @Override
     public Mono<List<DeviceMessageHistory>> getMessageHistory(MessageHistoryRequest req) {
-        return Mono.justOrEmpty(repository.getMessages(req));
+        return Mono.fromCallable(() -> repository.getMessages(req));
     }
 
     @Override
@@ -84,7 +84,7 @@ public class DeviceMessageServiceImpl implements MqttCallback, DeviceMessageServ
         var deviceId = topic.split("/")[3];
         var payload = new String(message.getPayload());
         var ts = Instant.now();
-        log.info("messageArrived: topic {} -> msg length {}", topic, payload.length());
+        log.info("messageArrived: topic {} -> msg length {}: {}", topic, message.getPayload().length, payload);
         publisher.publishEvent(new DeviceMessageEvent(this, deviceId, ts, payload));
         Mono.fromCallable(() -> mapper.readValue(payload, DeviceMessage.class))
             .map(msg -> repository.saveStatus(deviceId, ts, msg.status()))
@@ -107,6 +107,7 @@ public class DeviceMessageServiceImpl implements MqttCallback, DeviceMessageServ
                     try {
                         return mqttPublisher.publish("rest/response", mapper.writeValueAsBytes(body));
                     } catch (JsonProcessingException e) {
+                        log.error("error handling json", e);
                         return Mono.empty();
                     }
                 })

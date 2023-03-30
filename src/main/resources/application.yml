@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev
+    active: prod
   main:
     web-application-type: reactive
   webflux:
@@ -57,7 +57,7 @@ spring:
     password: 1
 iot:
   mqtt:
-    url: tcp://broker.hivemq.com:1883
+    url: mqtt://1.53.252.177:1883
     username: test123
     password: 1
     pub-client-id:

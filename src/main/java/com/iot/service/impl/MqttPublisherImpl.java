@@ -22,6 +22,7 @@ public class MqttPublisherImpl implements MqttPublisher {
     @Override
     public Mono<Void> publish(String topic, byte[] payload) {
         try {
+            log.info("published to topic {}, msg: {}", topic, new String(payload));
             publisher.publish(topic, new MqttMessage(payload));
             return Mono.empty().then();
         } catch (MqttException e) {
@@ -33,6 +34,7 @@ public class MqttPublisherImpl implements MqttPublisher {
     @Override
     public Mono<Void> publish(String topic, MqttMessage message) {
         try {
+            log.info("published to topic {}, msg: {}", topic, message.getPayload());
             publisher.publish(topic, message);
             return Mono.empty().then();
         } catch (MqttException e) {
@@ -45,6 +47,7 @@ public class MqttPublisherImpl implements MqttPublisher {
     public Mono<Void> publish(String topic, byte[] payload, int qos, boolean retain) {
         try {
             publisher.publish(topic, payload, qos, retain);
+            log.info("published to topic {}, msg: {}", topic, new String(payload));
             return Mono.empty().then();
         } catch (MqttException e) {
             log.error("Couldn't pub {} bytes to {}", payload.length, topic);

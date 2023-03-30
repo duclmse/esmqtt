@@ -2,17 +2,19 @@ package com.iot.repository.impl;
 
 import com.iot.model.msg.DeviceFullInfo;
 import com.iot.model.msg.DeviceInfo;
+import com.iot.model.msg.DeviceStatus;
+import com.iot.model.msg.DeviceStatusHistory;
+import com.iot.model.request.StatusHistoryRequest;
 import com.iot.repository.interfaces.DeviceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -31,7 +33,7 @@ public class DeviceRepositoryImpl implements DeviceRepository {
     }
 
     @Override
-    public DeviceInfo readDevice(String id) {
+    public DeviceFullInfo readDevice(String id) {
         var sql = "SELECT * FROM device WHERE id = ?;";
         return jdbc.queryForObject(sql, (rs, i) -> this.map(rs), id);
     }
@@ -63,7 +65,61 @@ public class DeviceRepositoryImpl implements DeviceRepository {
         return jdbc.update(sql, Timestamp.from(ts), Timestamp.from(expectHb), id);
     }
 
-    private DeviceInfo map(ResultSet rs) throws SQLException {
+    @Override
+    public DeviceFullInfo getLatestStatus(String id) {
+        var sql = "SELECT * FROM device_status_history WHERE device_id = ? ORDER BY ts DESC LIMIT 1;";
+        var statusList = jdbc.query(sql, (rs, i) -> this.mapStatus(rs), id);
+        if (statusList.isEmpty()) {
+            return null;
+        }
+        var info = readDevice(id);
+        info.status(statusList.get(0));
+        return info;
+    }
+
+    @Override
+    public DeviceStatusHistory getStatusHistory(StatusHistoryRequest req) {
+        var info = DeviceStatusHistory.from(readDevice(req.deviceId()));
+
+        // language=sql
+        var sql = new StringBuilder("SELECT * FROM device_status_history WHERE device_id = ? ");
+        var params = new ArrayList<>();
+        params.add(req.deviceId());
+
+        if (req.from() != null) {
+            sql.append("AND ts >= ? ");
+            params.add(Date.from(req.from()));
+        }
+        if (req.to() != null) {
+            sql.append("AND ts <= ? ");
+            params.add(Date.from(req.to()));
+        }
+        sql.append("LIMIT ? OFFSET ?;");
+        params.add(req.limit());
+        params.add(req.offset());
+        var status = jdbc.query(sql.toString(), (rs, i) -> this.mapStatus(rs), params.toArray());
+        return info.history(status);
+    }
+
+    private DeviceStatus mapStatus(ResultSet rs) throws SQLException {
+        return new DeviceStatus().switch1(rs.getBoolean("switch_1"))
+            .countdown1(rs.getInt("countdown_1"))
+            .addEle(rs.getInt("add_ele"))
+            .curCurrent(rs.getInt("cur_current"))
+            .curPower(rs.getInt("cur_power"))
+            .curVoltage(rs.getInt("cur_voltage"))
+            .testBit(rs.getInt("test_bit"))
+            .voltageCoe(rs.getInt("voltage_coe"))
+            .electricCoe(rs.getInt("electric_coe"))
+            .powerCoe(rs.getInt("power_coe"))
+            .electricityCoe(rs.getInt("electricity_coe"))
+            .fault(rs.getString("fault"))
+            .relayStatus(rs.getString("relay_status"))
+            .cycleTime(rs.getString("cycle_time"))
+            .randomTime(rs.getString("random_time"));
+    }
+
+    private DeviceFullInfo map(ResultSet rs) throws SQLException {
         var info = new DeviceFullInfo();
         info.id(rs.getString("id"))
             .name(rs.getString("name"))

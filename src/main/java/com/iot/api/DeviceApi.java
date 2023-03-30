@@ -3,6 +3,7 @@ package com.iot.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.iot.model.event.ApiCallEvent;
 import com.iot.model.msg.DeviceInfo;
+import com.iot.model.request.StatusHistoryRequest;
 import com.iot.model.response.ObjectResponse;
 import com.iot.service.interfaces.DeviceService;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,7 @@ import javax.validation.ConstraintViolationException;
 import static com.iot.model.response.ObjectResponse.error;
 import static com.iot.model.response.ObjectResponse.of;
 import static org.springframework.http.HttpMethod.*;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.*;
 import static org.springframework.http.ResponseEntity.*;
 
 @Slf4j
@@ -43,7 +43,8 @@ public class DeviceApi {
             .map(device -> ok(of(0, "Get device successfully!", device)))
             .defaultIfEmpty(badRequest().body(of(1, "Couldn't get device")))
             .doOnError(throwable -> log.error("Couldn't get device", throwable))
-            .onErrorResume(e -> Mono.just(internalServerError().body(of(1, "Couldn't get device: " + e.getMessage()))));
+            .onErrorResume(e -> Mono.just(internalServerError().body(of(1, "Couldn't get device: " + e.getMessage()))))
+            .doOnNext(resp -> log.info("getAllDevices done {}", resp.getBody()));
     }
 
     @GetMapping("/{device_id}")
@@ -102,5 +103,31 @@ public class DeviceApi {
             .doOnError(throwable -> log.error("Couldn't delete device", throwable))
             .onErrorResume(
                 e -> Mono.just(status(INTERNAL_SERVER_ERROR).body(of(1, "Couldn't delete device: " + e.getMessage()))));
+    }
+
+    @GetMapping("/{device_id}/status")
+    public Mono<ResponseEntity<ObjectResponse>> latestStatus(@PathVariable("device_id") String id) {
+        publisher.publishEvent(new ApiCallEvent(this, GET, "/v1.0/device/" + id + "/status", null));
+
+        return service.getLatestStatus(id)
+            .map(device -> ok(of(0, "Get device successfully!", device)))
+            .defaultIfEmpty(ResponseEntity.status(NOT_FOUND).body(of(1, "Couldn't get device status")))
+            .doOnError(throwable -> log.error("Couldn't get device", throwable))
+            .onErrorResume(e -> Mono.just(internalServerError().body(of(1, "Couldn't get device: " + e.getMessage()))));
+    }
+
+    @PostMapping("/{device_id}/history")
+    public Mono<ResponseEntity<ObjectResponse>> statusHistory(
+        @PathVariable("device_id") String id, @RequestBody String body
+    ) {
+        publisher.publishEvent(new ApiCallEvent(this, GET, "/v1.0/device/" + id + "/history", body));
+
+        return Mono.fromCallable(() -> mapper.readValue(body, StatusHistoryRequest.class))
+            .map(request -> request.deviceId(id))
+            .flatMap(service::getStatusHistory)
+            .map(device -> ok(of(0, "Get device status history successfully!", device)))
+            .defaultIfEmpty(badRequest().body(of(1, "Couldn't get device status history")))
+            .doOnError(throwable -> log.error("Couldn't get device", throwable))
+            .onErrorResume(e -> Mono.just(internalServerError().body(of(1, "Couldn't get device status history: " + e.getMessage()))));
     }
 }

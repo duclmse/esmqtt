@@ -48,11 +48,13 @@ public class DeviceCommandApi {
     public Mono<ResponseEntity<ObjectResponse>> sendCommand(
         @PathVariable("device-id") String deviceId, @RequestBody String body
     ) {
-        publisher.publishEvent(new ApiCallEvent(this, POST, "/v1.0/command", body));
+        log.info("control device {}, msg {}", deviceId, body);
+        publisher.publishEvent(new ApiCallEvent(this, POST, "/v1.0/command/" + deviceId, body));
 
         return Mono.fromCallable(() -> mapper.readValue(body, DeviceStatus.class))
             .flatMap(msg -> service.sendControlMsg(deviceId, msg))
             .map(done -> ok(of(0, "Published command")))
+            .defaultIfEmpty(ok(of(0, "published command")))
             .onErrorResume(JsonProcessingException.class,
                 throwable -> Mono.just(badRequest().body(of(1, "Invalid input"))))
             .onErrorResume(Exception.class,

@@ -1,6 +1,7 @@
 package com.iot.model.msg;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -13,52 +14,53 @@ import java.io.IOException;
 
 @Data
 @Accessors(fluent = true)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class DeviceStatus {
 
     @JsonProperty("1")
     @JsonAlias({"switch_1"})
     @JsonSerialize(using = SwitchSerializer.class)
-    private boolean switch1;
+    private Boolean switch1;
 
     @JsonProperty("9")
     @JsonAlias({"countdown_1"})
-    private int countdown1;
+    private Integer countdown1;
 
     @JsonProperty("17")
     @JsonAlias({"add_ele"})
-    private int addEle;
+    private Integer addEle;
 
     @JsonProperty("18")
     @JsonAlias({"cur_current"})
-    private int curCurrent;
+    private Integer curCurrent;
 
     @JsonProperty("19")
     @JsonAlias({"cur_power"})
-    private int curPower;
+    private Integer curPower;
 
     @JsonProperty("20")
     @JsonAlias({"cur_voltage"})
-    private int curVoltage;
+    private Integer curVoltage;
 
     @JsonProperty("21")
     @JsonAlias({"test_bit"})
-    private int testBit;
+    private Integer testBit;
 
     @JsonProperty("22")
     @JsonAlias({"voltage_coe"})
-    private int voltageCoe;
+    private Integer voltageCoe;
 
     @JsonProperty("23")
     @JsonAlias({"electric_coe"})
-    private int electricCoe;
+    private Integer electricCoe;
 
     @JsonProperty("24")
     @JsonAlias({"power_coe"})
-    private int powerCoe;
+    private Integer powerCoe;
 
     @JsonProperty("25")
     @JsonAlias({"electricity_coe"})
-    private int electricityCoe;
+    private Integer electricityCoe;
 
     @JsonProperty("26")
     @JsonAlias({"fault"})
@@ -84,7 +86,7 @@ public class DeviceStatus {
 
         @Override
         public void serialize(Boolean value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-            gen.writeString(value ? "yes": "no");
+            gen.writeNumber(value == null || !value ? 0 : 1);
         }
     }
 }
